@@ -1,0 +1,13 @@
+{
+  "ruleId": "SIG_PACKER_0041",
+  "packer": "DexGuard",
+  "vendor": "Guardsquare",
+  "iteration": 41,
+  "patterns": [
+    "dexguard.41",
+    "classes.dex.enc.41",
+    "libdexguard.so.41"
+  ],
+  "entropyThreshold": 7.25,
+  "severity": "critical"
+}
