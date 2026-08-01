@@ -1,0 +1,22 @@
+name: "Full Software Intelligence Pipeline"
+id: "full_analysis"
+description: "End-to-end static analysis, manifest decoding, decompiler, network proxy, and AI report"
+steps:
+  - id: "step_decode_manifest"
+    name: "1. Manifest & Binary Decoding"
+    capability: "static.analyze_apk"
+
+  - id: "step_decompile_source"
+    name: "2. Decompile Java & Smali"
+    capability: "static.decompile"
+    dependsOn: ["step_decode_manifest"]
+
+  - id: "step_intercept_network"
+    name: "3. Intercept Network & Map APIs"
+    capability: "network.intercept"
+    dependsOn: ["step_decode_manifest"]
+
+  - id: "step_generate_report"
+    name: "4. Generate Architecture Report"
+    capability: "report.generate"
+    dependsOn: ["step_decompile_source", "step_intercept_network"]

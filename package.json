@@ -1,0 +1,16 @@
+{
+  "name": "openrev-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OpenRev – Unified Software Intelligence & Reverse Engineering Platform",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=packages/ui",
+    "build": "npm run build --workspaces",
+    "test": "node --test tests/unit/core.test.ts tests/adapters/adapters.test.ts"
+  },
+  "license": "Apache-2.0"
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@openrev/ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dockable Multi-Panel UI for OpenRev Platform",
+  "main": "src/App.tsx",
+  "dependencies": {
+    "@openrev/core": "workspace:*",
+    "@openrev/plugin-sdk": "workspace:*"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "license": "Apache-2.0"
+}

@@ -1,0 +1,19 @@
+[package]
+name = "openrev-desktop"
+version = "1.0.0"
+description = "OpenRev Tauri Desktop Core Orchestration Host"
+authors = ["OpenRev Community"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+tauri = { version = "1.5", features = ["shell-all", "fs-all", "process-relaunch"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

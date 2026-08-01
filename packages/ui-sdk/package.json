@@ -1,0 +1,8 @@
+{
+  "name": "@openrev/ui-sdk",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Reusable UI Component SDK for OpenRev Platform",
+  "main": "src/index.ts",
+  "license": "Apache-2.0"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "@openrev/plugin-sdk",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Plugin SDK for OpenRev Platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "Apache-2.0"
+}

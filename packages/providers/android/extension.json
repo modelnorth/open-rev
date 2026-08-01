@@ -1,0 +1,24 @@
+{
+  "id": "provider.android",
+  "version": "1.0.0",
+  "name": "Android Provider",
+  "description": "Android APK and AAB binary analysis provider",
+  "capabilities": [
+    "AnalyzeAPK",
+    "ExtractResources"
+  ],
+  "supportedArtifacts": [
+    "APK",
+    "AAB",
+    "DEX"
+  ],
+  "platforms": [
+    "windows",
+    "macos",
+    "linux"
+  ],
+  "permissions": [
+    "process.execute",
+    "fs.read"
+  ]
+}

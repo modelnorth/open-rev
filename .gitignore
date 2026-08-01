@@ -1,0 +1,22 @@
+# Node & Build Outputs
+node_modules/
+dist/
+build/
+.cache/
+
+# Rust Outputs
+target/
+**/*.rs.bk
+
+# OS & IDE Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# Workspace & Artifact Data
+*.tmp
+*.bak
+out/
+temp/

@@ -1,0 +1,11 @@
+{
+  "name": "@openrev/core",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Core Engine, Capability Registry, Artifact Store, Event Store, and Scheduler for OpenRev",
+  "main": "dist/index.js",
+  "dependencies": {
+    "@openrev/plugin-sdk": "workspace:*"
+  },
+  "license": "Apache-2.0"
+}

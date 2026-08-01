@@ -1,0 +1,12 @@
+name: "API Discovery & Endpoint Extraction"
+id: "api_discovery"
+description: "Extracts REST, GraphQL, and WebSocket schemas from decompiled sources and network traffic"
+steps:
+  - id: "step_grep_endpoints"
+    name: "1. Scan Source for Endpoint Strings"
+    capability: "static.extract_strings"
+
+  - id: "step_map_graphql"
+    name: "2. Parse GraphQL Queries & Retrofit Interfaces"
+    capability: "static.parse_retrofits"
+    dependsOn: ["step_grep_endpoints"]

@@ -1,0 +1,8 @@
+{
+  "name": "@openrev/provider-sdk",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Provider SDK for building OpenRev Software Artifact Providers",
+  "main": "src/index.ts",
+  "license": "Apache-2.0"
+}

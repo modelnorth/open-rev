@@ -1,0 +1,10 @@
+{
+  "name": "@openrev/marketplace",
+  "version": "1.0.0",
+  "description": "Plugin Marketplace Registry, Installer, and Updater for OpenRev",
+  "main": "dist/index.js",
+  "dependencies": {
+    "@openrev/plugin-sdk": "workspace:*"
+  },
+  "license": "Apache-2.0"
+}
