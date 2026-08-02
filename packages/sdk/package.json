@@ -1,6 +1,6 @@
-{
+﻿{
   "name": "@openrev/sdk",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "type": "module",
   "description": "High-Level Public SDK for OpenRev Platform",
   "main": "src/index.ts",

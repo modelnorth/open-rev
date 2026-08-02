@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OpenRev Event Store & Typed Audit Trail Engine
  * 
  * Records all system, tool, and user events for replay, auditing, and debugging.
@@ -30,7 +30,7 @@ export class EventStore {
     const topicListeners = this.listeners.get(topic) || [];
     topicListeners.forEach((fn) => fn(event));
 
-    console.log(`[EventStore] Event published [${topic}] from ${source}`);
+    console.error(`[EventStore] Event published [${topic}] from ${source}`);
     return event;
   }
 

@@ -1,8 +1,8 @@
-{
+﻿{
   "name": "@openrev/ui",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "private": true,
-  "description": "Dockable Multi-Panel UI for OpenRev Platform",
+  "description": "[EXPERIMENTAL] Dockable Multi-Panel UI for OpenRev Platform â€” vite browser build cannot bundle node:* core modules; not part of the release gate",
   "main": "src/App.tsx",
   "scripts": {
     "dev": "vite",

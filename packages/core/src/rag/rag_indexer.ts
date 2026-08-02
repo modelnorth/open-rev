@@ -3,6 +3,9 @@
  * 
  * Indexes decompiled Java code, Smali source, Manifest XML, resources, and Knowledge Graph nodes
  * to allow instant AI retrieval without repeatedly parsing raw files.
+ *
+ * STATUS: EXPERIMENTAL — intended to complement the production SearchIndexer
+ * (packages/core/src/search/indexer.ts). Not part of the release gate.
  */
 
 import { ArtifactKnowledgeGraph } from '../graph/knowledge_graph';

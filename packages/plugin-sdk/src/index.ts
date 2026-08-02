@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OpenRev Plugin SDK
  * 
  * Provides typed registration interfaces for extending the platform:
@@ -78,35 +78,35 @@ export class PluginContext {
   }
 
   public registerCapability(capability: CapabilityDefinition): void {
-    console.log(`[PluginSDK:${this.manifest.id}] Registered Capability: ${capability.id}`);
+    console.error(`[PluginSDK:${this.manifest.id}] Registered Capability: ${capability.id}`);
   }
 
   public registerTool(tool: ToolDefinition): void {
-    console.log(`[PluginSDK:${this.manifest.id}] Registered Tool: ${tool.id}`);
+    console.error(`[PluginSDK:${this.manifest.id}] Registered Tool: ${tool.id}`);
   }
 
   public registerWorkflow(workflow: WorkflowDefinition): void {
-    console.log(`[PluginSDK:${this.manifest.id}] Registered Workflow: ${workflow.id}`);
+    console.error(`[PluginSDK:${this.manifest.id}] Registered Workflow: ${workflow.id}`);
   }
 
   public registerGraphNode(nodeDef: GraphNodeDefinition): void {
-    console.log(`[PluginSDK:${this.manifest.id}] Registered Graph Node Type: ${nodeDef.type}`);
+    console.error(`[PluginSDK:${this.manifest.id}] Registered Graph Node Type: ${nodeDef.type}`);
   }
 
   public registerPanel(panel: UiPanelDefinition): void {
-    console.log(`[PluginSDK:${this.manifest.id}] Registered UI Panel: ${panel.id}`);
+    console.error(`[PluginSDK:${this.manifest.id}] Registered UI Panel: ${panel.id}`);
   }
 
   public registerSearchProvider(providerId: string, searchFn: (query: string) => Promise<any[]>): void {
-    console.log(`[PluginSDK:${this.manifest.id}] Registered Search Provider: ${providerId}`);
+    console.error(`[PluginSDK:${this.manifest.id}] Registered Search Provider: ${providerId}`);
   }
 
   public registerReportExporter(format: string, exportFn: (data: any) => Promise<string>): void {
-    console.log(`[PluginSDK:${this.manifest.id}] Registered Report Exporter for format: ${format}`);
+    console.error(`[PluginSDK:${this.manifest.id}] Registered Report Exporter for format: ${format}`);
   }
 
   public registerAIProvider(providerId: string, handler: any): void {
-    console.log(`[PluginSDK:${this.manifest.id}] Registered AI Provider: ${providerId}`);
+    console.error(`[PluginSDK:${this.manifest.id}] Registered AI Provider: ${providerId}`);
   }
 }
 

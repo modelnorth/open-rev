@@ -1,8 +1,10 @@
 /**
  * OpenRev Report Generator
- * 
- * Compiles Artifact Knowledge Graph data, static analysis results, API endpoints,
- * and AI summaries into professional Markdown, HTML, PDF, and DOCX reports.
+ *
+ * Compiles real Artifact Knowledge Graph data (components, permissions,
+ * exported surfaces) into a Markdown report. Every number comes from the
+ * graph actually produced by the analysis pipeline — no fabricated endpoints,
+ * hosts, or counts.
  */
 
 import { ArtifactKnowledgeGraph } from '../graph/knowledge_graph';
@@ -21,34 +23,53 @@ export class ReportGenerator {
     const apkNode = nodes.find((n) => n.type === 'APK');
     const manifestNode = nodes.find((n) => n.type === 'Manifest');
     const activities = nodes.filter((n) => n.type === 'Activity');
-    const apiEndpoints = nodes.filter((n) => n.type === 'ApiEndpoint');
+    const services = nodes.filter((n) => n.type === 'Service');
+    const receivers = nodes.filter((n) => n.type === 'Receiver');
+    const permissions = nodes.filter((n) => n.type === 'Permission');
+
+    const exported = [...activities, ...services, ...receivers].filter(
+      (n) => n.properties?.exported === true
+    );
 
     return `# ${title}
 
 **Generated At**: ${new Date().toISOString()}  
-**Target Application**: ${apkNode?.label || 'SampleApp.apk'}  
-**Package Name**: ${manifestNode?.properties?.package || 'com.example.sampleapp'}  
+**Target Application**: ${apkNode?.label || '(unknown)'}  
+**Package Name**: ${manifestNode?.properties?.package || '(unknown)'}  
+**SHA-256**: ${apkNode?.properties?.sha256 || '(unknown)'}  
 
 ---
 
 ## Executive Summary
 
-OpenRev completed automated static analysis, manifest inspection, layout component discovery, and network endpoint mapping.
+OpenRev parsed the binary AndroidManifest.xml and extracted declared components, permissions, and requested platform features directly from the artifact.
 
 - **Total Graph Nodes**: ${nodes.length}
 - **Total Relationships**: ${edges.length}
-- **Activities Discovered**: ${activities.length}
-- **Discovered API Endpoints**: ${apiEndpoints.length}
+- **Activities Declared**: ${activities.length}
+- **Services Declared**: ${services.length}
+- **Receivers Declared**: ${receivers.length}
+- **Permissions Requested**: ${permissions.length}
+- **Exported Components (attack surface)**: ${exported.length}
 
 ---
 
-## Discovered Components & Architecture
+## Discovered Components
 
 ### Activities
-${activities.map((a) => `- **${a.label}** (Exported: ${a.properties?.exported ?? false})`).join('\n')}
+${activities.length ? activities.map((a) => `- **${a.label}**${a.properties?.exported === true ? ' *(exported)*' : ''}`).join('\n') : '_None declared._'}
 
-### Network API Endpoints
-${apiEndpoints.map((e) => `- \`${e.properties?.protocol || 'HTTPS'}\` **${e.label}** (Host: ${e.properties?.host || 'api.example.com'})`).join('\n')}
+### Services
+${services.length ? services.map((s) => `- **${s.label}**${s.properties?.exported === true ? ' *(exported)*' : ''}`).join('\n') : '_None declared._'}
+
+### Receivers
+${receivers.length ? receivers.map((r) => `- **${r.label}**${r.properties?.exported === true ? ' *(exported)*' : ''}`).join('\n') : '_None declared._'}
+
+### Exported Attack Surface
+${exported.length ? exported.map((e) => `- \`${e.properties?.name || e.label}\` (${e.type})`).join('\n') : '_No exported components detected._'}
+
+### Permissions Requested
+${permissions.length ? permissions.map((p) => `- \`${p.properties?.name || p.label}\``).join('\n') : '_None requested._'}
 
 ---
 
@@ -56,12 +77,16 @@ ${apiEndpoints.map((e) => `- \`${e.properties?.protocol || 'HTTPS'}\` **${e.labe
 
 \`\`\`mermaid
 graph TD
-${edges.map((e) => `    ${e.source}["${this.graph.getNode(e.source)?.label}"] -->|${e.relationship}| ${e.target}["${this.graph.getNode(e.target)?.label}"]`).join('\n')}
+${edges.map((e) => `    ${e.source}["${this.escapeLabel(this.graph.getNode(e.source)?.label)}"] -->|${e.relationship}| ${e.target}["${this.escapeLabel(this.graph.getNode(e.target)?.label)}"]`).join('\n')}
 \`\`\`
 
 ---
 
-*Report generated automatically by OpenRev Platform.*
+*Report generated automatically by OpenRev from real artifact analysis.*
 `;
+  }
+
+  private escapeLabel(label?: string): string {
+    return (label ?? '?').replace(/"/g, '');
   }
 }

@@ -1,6 +1,6 @@
-{
+﻿{
   "name": "@openrev/providers",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "type": "module",
   "description": "Provider Registry for Software Intelligence Artifacts (Android, iOS, PE, ELF, Mach-O, Network, GitHub, Docker)",
   "main": "index.ts",

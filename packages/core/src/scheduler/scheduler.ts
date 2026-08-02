@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OpenRev Task Scheduler & Priority Queue
  * 
  * Schedules analysis tasks with priorities, concurrency limits, retries, and cancellation tokens.
@@ -50,11 +50,11 @@ export class TaskScheduler {
     if (!task) return;
 
     this.runningCount++;
-    console.log(`[TaskScheduler] Running priority task [${task.priority}] ${task.name} (${task.id})`);
+    console.error(`[TaskScheduler] Running priority task [${task.priority}] ${task.name} (${task.id})`);
 
     try {
       await task.run();
-      console.log(`[TaskScheduler] Task ${task.id} completed.`);
+      console.error(`[TaskScheduler] Task ${task.id} completed.`);
     } catch (err) {
       if (task.retryCount < task.maxRetries) {
         task.retryCount++;

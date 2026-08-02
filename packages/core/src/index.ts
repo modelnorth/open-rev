@@ -21,5 +21,6 @@ export * from './runtime/worker_pool';
 export * from './rag/rag_indexer';
 export * from './ai/ai_agent';
 export * from './workflow/workflow_engine';
+export * from './pipeline/analysis_pipeline';
 export * from './report/report_generator';
 export * from './search/indexer';

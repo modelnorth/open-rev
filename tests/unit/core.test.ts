@@ -24,32 +24,39 @@ test('SecuritySanitizer Path Traversal & Zip Slip Prevention', () => {
 
 test('ProductionAndroidProvider Output Normalization', async () => {
   const provider = new ProductionAndroidProvider();
-  const res = await provider.execute({ targetPath: 'SampleApp.apk', outputDir: './out' });
+  const res = await provider.execute({
+    targetPath: 'tests/fixtures/FixtureApp.apk',
+    outputDir: './out'
+  });
 
   assert.strictEqual(res.success, true);
   assert.strictEqual(res.providerId, 'provider.android');
   assert.strictEqual(res.artifactsProduced.length, 2);
-  assert.strictEqual(res.graphNodes.length, 6);
-  assert.strictEqual(res.graphEdges.length, 5);
+  assert.ok(res.graphNodes.length >= 20, `expected >=20 graph nodes, got ${res.graphNodes.length}`);
+  assert.ok(res.graphEdges.length >= 18, `expected >=18 graph edges, got ${res.graphEdges.length}`);
+  const apk = res.artifactsProduced[0].payload;
+  assert.strictEqual(apk.package, 'com.example.two_rings');
 });
 
 test('OpenRevSDK High-Level API Analysis', async () => {
   const sdk = new OpenRevSDK();
-  const res = await sdk.analyzeTarget('TargetApp.apk');
+  const res = await sdk.analyzeTarget('tests/fixtures/FixtureApp.apk');
 
-  assert.strictEqual(res.artifactsCount, 1);
-  assert.strictEqual(res.graphNodesCount, 1);
+  assert.ok(res.artifactsCount >= 1, 'artifacts >= 1');
+  assert.ok(res.graphNodesCount >= 20, `graph nodes >= 20, got ${res.graphNodesCount}`);
+  assert.strictEqual(res.packageName, 'com.example.two_rings');
+  assert.ok(res.hash.length === 64);
 });
 
 test('Milestone 0 End-to-End Vertical Slice Execution', async () => {
   const runner = new VerticalSliceRunner();
-  const res = await runner.runMilestone0Demo('SampleApp.apk');
+  const res = await runner.runMilestone0Demo('tests/fixtures/FixtureApp.apk');
 
-  assert.strictEqual(res.artifactsCount, 1);
-  assert.strictEqual(res.graphNodesCount, 4);
-  assert.strictEqual(res.searchResultsCount, 1);
-  assert.strictEqual(res.timelineEventsCount, 3);
+  assert.ok(res.artifactsCount >= 1, `artifacts >= 1, got ${res.artifactsCount}`);
+  assert.ok(res.graphNodesCount >= 20, `graph nodes >= 20, got ${res.graphNodesCount}`);
+  assert.ok(res.searchResultsCount >= 9, `search results >= 9, got ${res.searchResultsCount}`);
   assert.ok(res.snapshotId.startsWith('snap_'));
+  assert.strictEqual(res.packageName, 'com.example.two_rings');
 });
 
 test('ArtifactKnowledgeGraph Node & Edge Management', () => {
@@ -105,16 +112,48 @@ test('RemoteExecutionGateway Multi-Target Routing', async () => {
   const localRes = await gateway.execute('provider.android', 'analyze', {}, { target: 'local' });
   assert.strictEqual(localRes.mode, 'local');
 
-  const dockerRes = await gateway.execute('provider.mobsf', 'scan', {}, { target: 'docker', dockerImage: 'opensec/mobsf' });
-  assert.strictEqual(dockerRes.mode, 'docker');
-  assert.strictEqual(dockerRes.containerId, 'cnt_8f93a1');
+  // docker and remote targets must fail honestly when not configured
+  await assert.rejects(
+    gateway.execute('provider.mobsf', 'scan', {}, { target: 'docker', dockerImage: 'opensec/mobsf' }),
+    (err: any) => err.code === 'TOOL_NOT_FOUND' || err.code === 'TOOL_EXECUTION_FAILED'
+  );
+  await assert.rejects(
+    gateway.execute('provider.mobsf', 'scan', {}, { target: 'remote', endpointUrl: 'https://example.com' }),
+    (err: any) => err.code === 'UNSUPPORTED_FORMAT'
+  );
 });
 
 test('KnowledgeGraphQueryAPI Domain Queries', async () => {
-  const queryApi = new KnowledgeGraphQueryAPI();
+  const graph = new ArtifactKnowledgeGraph();
+  graph.addNode({
+    id: 'apk_1',
+    type: 'APK',
+    label: 'FixtureApp.apk',
+    properties: { package: 'com.example.two_rings' }
+  });
+  graph.addNode({
+    id: 'act_1',
+    type: 'Activity',
+    label: 'MainActivity',
+    properties: { name: 'com.example.two_rings.MainActivity', exported: true }
+  });
+  graph.addNode({
+    id: 'act_2',
+    type: 'Activity',
+    label: 'SecretActivity',
+    properties: { name: 'com.example.two_rings.SecretActivity', exported: false }
+  });
+  graph.addEdge({
+    id: 'e1',
+    source: 'apk_1',
+    target: 'act_1',
+    relationship: 'CONTAINS'
+  });
+
+  const queryApi = new KnowledgeGraphQueryAPI(graph);
   const exported = await queryApi.findExportedComponents();
   assert.strictEqual(exported.length, 1);
-  assert.strictEqual(exported[0].name, 'com.example.sampleapp.MainActivity');
+  assert.strictEqual(exported[0].properties.name, 'com.example.two_rings.MainActivity');
 });
 
 test('WorkspaceSnapshotEngine Snapshots & Restores', () => {

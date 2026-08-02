@@ -1,12 +1,18 @@
-/**
+﻿/**
  * OpenRev RAG-Backed AI Copilot & Autonomous Agent Engine
  * 
  * Supports OpenAI, Anthropic, Ollama, vLLM, LM Studio, and LiteLLM providers.
  * Queries Knowledge Graph & RAG index instead of raw APK files.
+ *
+ * STATUS: EXPERIMENTAL — requires an LLM provider (API key or local model).
+ * The real provider call is NOT implemented. These methods never fabricate
+ * analysis findings: without a configured, working provider they return an
+ * honest error instead of canned "results". See docs/RELEASE_CRITERIA.md gate G14.
  */
 
 import { RAGIndexer } from '../rag/rag_indexer';
 import { ArtifactKnowledgeGraph } from '../graph/knowledge_graph';
+import { OpenRevError, OpenRevErrorCode } from '../errors/openrev_error';
 
 export interface AIProviderConfig {
   provider: 'openai' | 'anthropic' | 'ollama' | 'vllm' | 'lmstudio' | 'litellm';
@@ -26,45 +32,34 @@ export class AIAgentEngine {
     this.graph = graph;
   }
 
+  public get configuredProvider(): string {
+    return this.config.provider;
+  }
+
   public async askCopilot(userPrompt: string): Promise<string> {
-    console.log(`[AIAgentEngine] RAG query for prompt: "${userPrompt}" via provider: ${this.config.provider}`);
-    const context = this.rag.getContextForQuery(userPrompt);
-
-    // Simulated LLM synthesis over Knowledge Graph + RAG Context
-    return `### AI Analysis & Code Explanation
-
-Based on the **Artifact Knowledge Graph** and RAG source indexing:
-
-${context}
-
-#### Summary & Key Observations:
-1. **Target Package**: \`com.example.sampleapp\`
-2. **Main Component**: \`MainActivity\` declares \`android.permission.INTERNET\` and invokes authentication endpoints.
-3. **API Discovery**: Identified \`POST /api/v1/auth/login\` over HTTPS.
-4. **Architecture Recommendation**: The network communication layer uses OkHttp/Retrofit. Ensure TLS certificate validation and authorization headers are correctly handled.
-
-#### Suggested Mermaid Diagram:
-\`\`\`mermaid
-graph TD
-    UI[MainActivity] -->|POST Credentials| API[POST /api/v1/auth/login]
-    API -->|Validates Session| DB[Backend Auth Server]
-\`\`\`
-`;
+    console.error(`[AIAgentEngine] Copilot requested for prompt: "${userPrompt}" via provider: ${this.config.provider}`);
+    if (!this.config.apiKey) {
+      throw new OpenRevError({
+        code: OpenRevErrorCode.CAPABILITY_NOT_FOUND,
+        message: `AI copilot is experimental and not configured: no apiKey for provider "${this.config.provider}".`,
+        cause: 'The real LLM provider call is not implemented.',
+        remediation: 'Set an LLM provider config or use the real pipeline tools instead (analyze/graph/search/report).'
+      });
+    }
+    throw new OpenRevError({
+      code: OpenRevErrorCode.CAPABILITY_NOT_FOUND,
+      message: `AI copilot is experimental; real provider calls are not implemented (provider "${this.config.provider}").`,
+      cause: 'No HTTP integration with the LLM provider exists yet.',
+      remediation: 'Use the real pipeline tools instead (analyze/graph/search/report).'
+    });
   }
 
   public async runAutonomousAgentPlan(goal: string): Promise<{ plan: string[]; executionLog: string[] }> {
-    return {
-      plan: [
-        '1. Query Artifact Knowledge Graph for target APK structure',
-        '2. Search RAG index for exported Activities and intent filters',
-        '3. Inspect network API endpoints and permission declarations',
-        '4. Compile architectural overview and security summary report'
-      ],
-      executionLog: [
-        '[Plan] Extracted 4 workflow steps.',
-        '[Observe] Knowledge Graph returned 3 Activities, 1 Manifest, 4 Endpoints.',
-        '[Summary] Autonomous agent loop completed.'
-      ]
-    };
+    throw new OpenRevError({
+      code: OpenRevErrorCode.CAPABILITY_NOT_FOUND,
+      message: `Autonomous agent loop is experimental and not implemented (goal: "${goal}").`,
+      cause: 'No real multi-step agent execution exists.',
+      remediation: 'Drive the pipeline steps yourself via analyze/graph/search/report tools.'
+    });
   }
 }

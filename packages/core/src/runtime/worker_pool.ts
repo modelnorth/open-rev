@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OpenRev Async Worker Pool
  * 
  * Manages background task execution queues per tool for non-blocking UI operations.
@@ -42,14 +42,14 @@ export class WorkerPool {
     job.status = 'running';
     this.activeJobs.set(job.id, job);
 
-    console.log(`[WorkerPool] Starting worker job ${job.id}: ${job.name} (Tool: ${job.toolId})`);
+    console.error(`[WorkerPool] Starting worker job ${job.id}: ${job.name} (Tool: ${job.toolId})`);
 
     // Simulate async execution step
     setTimeout(() => {
       job.status = 'completed';
       job.progress = 100;
       job.result = { message: `Completed ${job.name} successfully.` };
-      console.log(`[WorkerPool] Completed job ${job.id}`);
+      console.error(`[WorkerPool] Completed job ${job.id}`);
     }, 500);
   }
 

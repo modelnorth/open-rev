@@ -25,25 +25,28 @@ This repo is a **TypeScript monorepo** that runs TypeScript **directly from sour
    checked at runtime (`DependencyRegistry`). Adapters must report `missing` honestly,
    not fake `installed`.
 6. **No invented client names, deployment counts, or certifications.**
-7. **Honesty about maturity**: many adapters and AI paths are still simulated. Do not
-   present simulated output as real analysis. Use "simulated" in docs/UI where applicable.
+7. **Honesty about maturity**: the core analysis pipeline, SQLite workspace, adapters,
+   CLI, and MCP server are **real** (no simulated output). External tools that are not
+   installed return honest `TOOL_NOT_FOUND`. The AI/RAG copilot, marketplace installer,
+   and desktop/UI are **experimental** — never present them as verified. When a feature
+   is unverified, say so and point at `docs/KNOWN_LIMITATIONS.md`.
 
 ## Commands (run these, not guesses)
 
 ```bash
 npm install        # install all workspaces (uses package-lock.json)
 npm run typecheck  # tsc --noEmit for ALL packages (core, sdk, ui, ui-sdk, mcp-server, ...)
-npm test           # 13 unit + adapter tests via node:test + tsx
-npm run build      # typecheck + vite build of the UI (outputs packages/ui/dist)
-npm run dev        # launch the React UI dev server (Vite, port 3000)
-npm run cli -- --json <cmd>   # CLI with JSON output (see below)
+npm test           # 29 unit + adapter + integration tests via node:test + tsx
+npm run test:coverage   # same + Node native coverage report
+npm run build      # typecheck only (the repo is noEmit; UI browser build is experimental)
+npm run cli -- <cmd>   # CLI (see below)
 npm run mcp        # start the OpenRev MCP server (stdio)
 ```
 
-On the UI/desktop workspaces there are also:
+On the UI workspace (experimental):
 ```bash
 npm run typecheck --workspace=@openrev/ui   # typecheck just the UI
-npm run build --workspace=@openrev/ui       # vite build the UI
+npm run build --workspace=@openrev/ui       # vite build the UI (KNOWN to fail: node:* modules)
 ```
 
 ## CLI
@@ -51,11 +54,11 @@ npm run build --workspace=@openrev/ui       # vite build the UI
 ```bash
 node --import tsx bin/openrev.js help
 node --import tsx bin/openrev.js deps --json        # real dependency health checks
-node --import tsx bin/openrev.js analyze app.apk --json
-node --import tsx bin/openrev.js graph --json
-node --import tsx bin/openrev.js search login --json
-node --import tsx bin/openrev.js report --out report.md
-node --import tsx bin/openrev.js workflow target.apk --json
+node --import tsx bin/openrev.js analyze tests/fixtures/FixtureApp.apk --json
+node --import tsx bin/openrev.js graph tests/fixtures/FixtureApp.apk --json
+node --import tsx bin/openrev.js search tests/fixtures/FixtureApp.apk "INTERNET" --json
+node --import tsx bin/openrev.js report tests/fixtures/FixtureApp.apk --out report.md
+node --import tsx bin/openrev.js workflow tests/fixtures/FixtureApp.apk --json
 node --import tsx bin/openrev.js capabilities --json
 ```
 
@@ -114,9 +117,10 @@ Run it manually: `npm run mcp`. Tools exposed: `list_capabilities`,
 - **Runtime**: everything executes through `tsx` (`node --import tsx`). There is no
   compiled output; `packages/*/package.json` `main`/`types` point at `src/*.ts`.
 - **Tests**: `node:test` + `node:assert`, no test framework dependency.
-- **Browser vs Node**: packages imported by the UI must not statically import
-  `node:*` builtins at module top-level (use dynamic `await import()` inside methods),
-  otherwise Vite fails to bundle them.
+- **Browser vs Node**: core is Node-only (static `node:*` imports in several modules,
+  e.g. `dependency_registry`, `db/sqlite_workspace`). The React UI cannot bundle the
+  full core and is **experimental** — do not try to fix the UI browser build as part of
+  core work.
 - **New packages**: add to `workspaces` via `packages/*`, use `file:` deps, extend
   `tsconfig.base.json`.
 

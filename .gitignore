@@ -20,3 +20,9 @@ Thumbs.db
 *.bak
 out/
 temp/
+
+# OpenRev runtime data (artifact store + scratch SQLite workspaces)
+.openrev/
+.openrev/**
+*.openrev
+coverage/

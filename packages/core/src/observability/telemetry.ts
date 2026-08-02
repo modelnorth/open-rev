@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OpenRev Local Observability & Diagnostic Engine
  * 
  * Provides local structured logging, performance metrics tracking, and diagnostic reports.
@@ -22,7 +22,7 @@ export class ObservabilityEngine {
       unit,
       timestamp: new Date().toISOString()
     });
-    console.log(`[Observability] Metric recorded: ${name} = ${value}${unit}`);
+    console.error(`[Observability] Metric recorded: ${name} = ${value}${unit}`);
   }
 
   public generateDiagnosticReport(): { totalMetricsRecorded: number; summary: Record<string, any> } {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OpenRev MCP Server
  * 
  * Exposes OpenRev reverse-engineering capabilities to AI coding assistants
@@ -6,15 +6,15 @@
  * Protocol using stdio transport.
  *
  * Tools exposed:
- *   analyze_target      — run the static analysis pipeline against a binary/APK
- *   list_capabilities   — list registered capability contracts
- *   check_dependencies  — run real health checks against external RE tools
- *   search_graph        — search the Artifact Knowledge Graph
- *   query_graph_api     — run domain queries (exported components, endpoints, permissions)
- *   generate_report     — produce a Markdown analysis report from the graph
- *   run_workflow        — execute a workflow DAG
- *   analyze_provider    — run a registered provider (e.g. provider.android)
- *   create_plugin       — scaffold a new plugin
+ *   analyze_target      â€” run the static analysis pipeline against a binary/APK
+ *   list_capabilities   â€” list registered capability contracts
+ *   check_dependencies  â€” run real health checks against external RE tools
+ *   search_graph        â€” search the Artifact Knowledge Graph
+ *   query_graph_api     â€” run domain queries (exported components, endpoints, permissions)
+ *   generate_report     â€” produce a Markdown analysis report from the graph
+ *   run_workflow        â€” execute a workflow DAG
+ *   analyze_provider    â€” run a registered provider (e.g. provider.android)
+ *   create_plugin       â€” scaffold a new plugin
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -31,10 +31,14 @@ import {
   CapabilityEngine,
   KnowledgeGraphQueryAPI
 } from '@openrev/core';
-import { ProductionAndroidProvider } from '@openrev/providers';
+import { AndroidProvider } from '@openrev/providers';
+import { JadxAdapter } from '../../adapters/jadx/index.ts';
+import { ApktoolAdapter } from '../../adapters/apktool/index.ts';
+import { AdbAdapter } from '../../adapters/adb/index.ts';
+import { GhidraAdapter } from '../../adapters/ghidra/index.ts';
 import { createPluginScaffold } from '@openrev/plugin-sdk';
 
-const TOOLS_SUMMARY = `OpenRev MCP Server v0.1.0-alpha.1
+const TOOLS_SUMMARY = `OpenRev MCP Server v0.1.0-alpha.2
 
 Exposes reverse-engineering capabilities over MCP. Call tools such as
 "list_capabilities" to enumerate available capabilities, "analyze_target"
@@ -58,7 +62,7 @@ export class OpenRevMcpServer {
 
     this.server = new McpServer({
       name: 'openrev',
-      version: '0.1.0-alpha.1'
+      version: '0.1.0-alpha.2'
     });
 
     this.registerTools();
@@ -121,12 +125,15 @@ export class OpenRevMcpServer {
       async ({ targetPath }) => {
         const capEngine = new CapabilityEngine(this.registry, this.graph);
         const staticRes = await capEngine.executeCapability('static.analyze_apk', { targetPath });
-        this.search.addDocument({
-          id: `doc_${Date.now()}`,
-          category: 'report',
-          title: `Analysis of ${targetPath}`,
-          content: staticRes.outputSummary
-        });
+        this.queryApi.setGraph(this.graph);
+        if (staticRes.report) {
+          this.search.addDocument({
+            id: `doc_${Date.now()}`,
+            category: 'report',
+            title: `Analysis of ${targetPath}`,
+            content: staticRes.report
+          });
+        }
         return {
           content: [
             {
@@ -269,7 +276,7 @@ export class OpenRevMcpServer {
       {
         title: 'Run a registered provider',
         description:
-          'Execute a registered artifact provider (e.g. provider.android) and return normalized artifacts, graph nodes, and edges.',
+          'Execute a real provider/adapter by id: provider.android (APK manifest analysis), provider.jadx (decompile), provider.apktool (decode resources), provider.ghidra (ELF symbols), provider.adb (list devices). Returns normalized artifacts, graph nodes, and edges.',
         inputSchema: {
           providerId: z.string().describe('Provider id, e.g. "provider.android"'),
           targetPath: z.string().describe('Target file path'),
@@ -277,22 +284,75 @@ export class OpenRevMcpServer {
         }
       },
       async ({ providerId, targetPath, outputDir }) => {
-        if (providerId === 'provider.android') {
-          const provider = new ProductionAndroidProvider();
-          const result = await provider.execute({ targetPath, outputDir });
+        try {
+          switch (providerId) {
+            case 'provider.android': {
+              const result = await new AndroidProvider().execute({ targetPath, outputDir });
+              return {
+                content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+              };
+            }
+            case 'provider.jadx': {
+              const res = await new JadxAdapter().decompile(targetPath, {
+                decompileCode: true,
+                exportResources: true,
+                outputDir
+              });
+              if (!res.ok) throw res.error;
+              return {
+                content: [{ type: 'text', text: JSON.stringify(res.value, null, 2) }]
+              };
+            }
+            case 'provider.apktool': {
+              const res = await new ApktoolAdapter().decode(targetPath, outputDir);
+              if (!res.ok) throw res.error;
+              return {
+                content: [{ type: 'text', text: JSON.stringify(res.value, null, 2) }]
+              };
+            }
+            case 'provider.ghidra': {
+              const res = await new GhidraAdapter().analyzeElf(targetPath);
+              if (!res.ok) throw res.error;
+              return {
+                content: [{ type: 'text', text: JSON.stringify(res.value, null, 2) }]
+              };
+            }
+            case 'provider.adb': {
+              const res = await new AdbAdapter().listDevices();
+              if (!res.ok) throw res.error;
+              return {
+                content: [{ type: 'text', text: JSON.stringify(res.value, null, 2) }]
+              };
+            }
+            default: {
+              return {
+                isError: true,
+                content: [
+                  {
+                    type: 'text',
+                    text: JSON.stringify({
+                      error: `Provider "${providerId}" is not available. Use one of: provider.android, provider.jadx, provider.apktool, provider.ghidra, provider.adb.`
+                    })
+                  }
+                ]
+              };
+            }
+          }
+        } catch (err) {
           return {
-            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+            isError: true,
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  err instanceof Error
+                    ? { error: err.message, code: (err as any).code ?? undefined }
+                    : { error: String(err) }
+                )
+              }
+            ]
           };
         }
-        return {
-          isError: true,
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({ error: `Provider "${providerId}" is not available. Use "provider.android".` })
-            }
-          ]
-        };
       }
     );
 

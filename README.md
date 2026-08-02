@@ -2,82 +2,76 @@
 
 **OpenRev** is a cross-platform software intelligence and reverse-engineering platform
 built around generic software artifacts and capability-based tool orchestration. It
-combines an artifact knowledge graph, a RAG-powered AI copilot, and a modular
-adapter/plugin ecosystem in a local-first, offline-capable desktop application.
+combines an artifact knowledge graph, a real binary-analysis pipeline, and a modular
+adapter/plugin ecosystem in a local-first, offline-capable toolchain.
 
-> **Status: Alpha.** The architecture, graph schema, SDKs, and pipeline scaffolding
-> are in place and tested (13/13 unit + adapter tests green, full typecheck across all
-> workspaces). Several external-tool adapters and AI provider paths are still
-> **simulated** — see [Maturity](#maturity) below. The repo is safe for AI assistants
-> to work in; read [`AGENTS.md`](AGENTS.md) before contributing.
+> **Status: Alpha.** The core analysis pipeline, binary format decoders, SQLite
+> workspace, adapters, CLI, and MCP server are **real** — every stage is backed by real
+> file bytes with no fabricated output (29 tests green, full typecheck, measured
+> coverage ~85% line). External tools (jadx, apktool, ghidra, …) are probed honestly and
+> report `TOOL_NOT_FOUND` when absent. The AI/RAG copilot, marketplace installer, and
+> desktop UI are **experimental** — see [Maturity](#maturity).
 
 ## Highlights
 
-- **Local-First & Offline Capable** — all storage, indexing, and analysis run on your machine.
-- **Capability-Based Tool Runtime** — express intent (`Analyze APK`, `Extract Endpoints`)
-  and the engine selects the right adapters.
-- **Artifact Knowledge Graph** — connected graph schema with nodes (`APK`, `Manifest`,
-  `Activity`, `Layout`, `ApiEndpoint`, `Native SO`, `Permissions`, `Strings`) and
-  directed relationships.
-- **Graph-Driven & RAG AI Copilot** — OpenAI, Anthropic, Ollama, vLLM, and LM Studio
-  query the knowledge graph and indexed source chunks instead of re-reading raw binaries.
-- **Extensible Plugin Marketplace** — first- and third-party plugins with independent
-  versioning and sandboxed execution.
+- **Real binary analysis pipeline** — ZIP/APK parsing, binary `AndroidManifest.xml`
+  decoding, component/permission/resource extraction, knowledge graph construction,
+  search indexing, and a Markdown report generator. Verified against a 178 MB
+  production APK and a committed portable fixture (`tests/fixtures/FixtureApp.apk`).
+- **Real SQLite workspace** — `node:sqlite` persistence for workspace records, artifact
+  index, graph snapshots, and search documents.
+- **Capability-Based Tool Runtime** — express intent (`Analyze APK`, `Decompile Source`)
+  and the engine selects the right adapters; uninstalled tools return honest errors.
+- **Real external-tool adapters** — jadx, apktool, adb, frida, ghidra with timeouts,
+  output caps, and honest `TOOL_NOT_FOUND` when a tool is missing. No canned output.
 - **MCP Server** — expose OpenRev capabilities to AI coding assistants
-  (Claude Code, Antigravity, OpenCode) via the Model Context Protocol.
-- **Real dependency health checks** — external RE tools (jadx, apktool, adb, frida,
-  ghidra, mitmproxy, radare2, mobsfscan) are probed on PATH and reported as
-  `installed` / `missing` / `outdated` / `error` — no fake "installed".
+  (Claude Code, Antigravity, OpenCode) over the Model Context Protocol (stdio).
+- **CLI** — `analyze`, `graph`, `search`, `report`, `workflow`, `deps` with `--json`.
+- **Artifact Knowledge Graph** — connected graph (`APK`, `Manifest`, `Activity`,
+  `Service`, `Receiver`, `Permission`, …) with validation and a domain query API.
 
 ## Monorepo Layout
 
 | Package | Description |
 |---|---|
-| `packages/core` | Core engine, capability registry, artifact store, event store, scheduler, CLI |
-| `packages/desktop` | Tauri / Rust desktop host |
-| `packages/ui` | React + TypeScript UI workspace (Vite) |
-| `packages/sdk` | Public SDK |
-| `packages/ui-sdk` | UI SDK for panels and custom views |
-| `packages/plugin-sdk` | Plugin SDK for third-party extensions |
-| `packages/provider-sdk` | Provider SDK (`BaseProvider` contract) |
-| `packages/providers` | Built-in providers (Android, ELF) |
-| `packages/marketplace` | Marketplace registry & installer |
+| `packages/core` | Core engine, capability registry, artifact store, pipeline, SQLite workspace, CLI |
+| `packages/adapters` | Real tool adapters (jadx, apktool, adb, frida, ghidra) + shared runtime |
+| `packages/providers` | Built-in providers (Android — real; ELF — experimental header parse) |
+| `packages/sdk` | Public SDK (`analyzeTarget` runs the real pipeline) |
 | `packages/mcp-server` | MCP server (stdio) for AI assistants |
-| `packages/adapters` | Tool adapters (jadx, adb, ghidra, frida, apktool) |
-| `plugins/static-analysis` | Static analysis plugin |
-| `workflows/` | YAML analysis workflows (`full_analysis`, `api_discovery`) |
-| `tests/` | Unit and adapter test suites |
+| `packages/provider-sdk` | Provider SDK (`BaseProvider` contract) |
+| `packages/plugin-sdk` | Plugin SDK for third-party extensions |
+| `packages/ui` | React + Vite UI — **experimental** (browser build cannot bundle `node:*` core) |
+| `packages/desktop` | Tauri / Rust desktop host — **experimental** (requires Rust toolchain) |
+| `packages/ui-sdk` | UI SDK for panels and custom views |
+| `packages/marketplace` | Marketplace registry & installer — **experimental** |
+| `tests/` | Unit, adapter, and integration test suites |
 
 ## Getting Started
 
 ```bash
 npm install
-npm run dev        # launch the UI workspace (http://localhost:3000)
 npm run typecheck  # typecheck ALL workspaces
-npm test           # run the core & adapter test suites
-npm run build      # typecheck + build the UI (packages/ui/dist)
-node --import tsx bin/openrev.js deps --json   # CLI: real dependency health checks
-npm run mcp        # start the MCP server
+npm test           # unit + adapters + integration (29 tests)
+npm run test:coverage
+npm run build      # typecheck (the repo is noEmit; UI browser build is experimental)
 ```
 
-## CLI
+### CLI
 
 ```bash
-openrev analyze <file>         Run the static analysis pipeline
-openrev deps                   Run real dependency health checks
-openrev graph                  Print the Artifact Knowledge Graph
-openrev search <query>         Search graph nodes and indexed documents
-openrev report [--out file.md] Generate a Markdown analysis report
-openrev workflow <target>      Run the default audit workflow DAG
-openrev capabilities           List capability contracts
+node --import tsx bin/openrev.js analyze tests/fixtures/FixtureApp.apk --json
+node --import tsx bin/openrev.js graph tests/fixtures/FixtureApp.apk
+node --import tsx bin/openrev.js search tests/fixtures/FixtureApp.apk "INTERNET"
+node --import tsx bin/openrev.js report tests/fixtures/FixtureApp.apk --out report.md
+node --import tsx bin/openrev.js workflow tests/fixtures/FixtureApp.apk
+node --import tsx bin/openrev.js deps --json
 ```
 
-Add `--json` for machine-readable output. Exit codes: `0` success, `1` error, `2` usage.
+Add `--json` for machine-readable output on stdout (logs go to stderr).
+Exit codes: `0` success, `1` error, `2` usage.
 
-## MCP Server (AI Assistant Integration)
-
-OpenRev exposes its capabilities over MCP so any AI coding assistant can call them
-as tools:
+### MCP Server (AI Assistant Integration)
 
 ```bash
 # Claude Code
@@ -90,30 +84,35 @@ claude mcp add openrev -- node --import tsx /abs/path/packages/mcp-server/src/in
 
 Tools: `list_capabilities`, `check_dependencies`, `analyze_target`, `search_graph`,
 `query_graph_api`, `generate_report`, `run_workflow`, `analyze_provider`,
-`create_plugin`, `list_dependencies`.
+`create_plugin`, `list_dependencies`. `analyze_provider` dispatches to real adapters
+(`provider.android`, `provider.jadx`, `provider.apktool`, `provider.ghidra`,
+`provider.adb`).
 
 ## Maturity
 
 | Area | Status |
 |---|---|
-| Architecture / SDKs / Plugin contracts | Implemented (frozen via `ARCHITECTURE_FREEZE.md`) |
-| Knowledge Graph, Search, Events, Scheduler | Implemented (in-memory) |
-| Dependency health checks | **Real** (binary probes on PATH) |
-| CLI + MCP server | Implemented |
-| React UI (Vite) | Implemented (builds & typechecks; demo data) |
-| Tauri desktop | Scaffolded (requires Rust toolchain + `npm run build` in `packages/desktop`) |
-| Adapters (jadx/adb/ghidra/frida/apktool) | **Simulated** — return canned output; real integration pending |
-| SQLite workspace persistence | **Simulated** — in-memory Map; real SQLite pending |
-| AI copilot / RAG | **Simulated** — template responses; real provider calls pending |
-| Marketplace installer | **Simulated** — records installs in memory; download/extract pending |
+| ZIP reader / AXML decoder / manifest extractor | **Real** (pure TS, CRC32-verified, Zip-Slip safe) |
+| Android provider (APK/AAB manifest analysis) | **Real** (verified on fixture + 178 MB APK) |
+| SQLite workspace persistence | **Real** (`node:sqlite`) |
+| Analysis pipeline (hash → decode → graph → index → SQLite → report) | **Real** |
+| Search engine | **Real** (inverted index + IDF scoring, `regex:` mode) |
+| Adapters (jadx/apktool/adb/frida/ghidra) | **Real probes & execution**; decompile success paths require the tools installed (honest `TOOL_NOT_FOUND` otherwise) |
+| CLI + MCP server | **Real** (verified end-to-end) |
+| AI copilot / RAG | **Experimental** — requires LLM provider; never faked |
+| Marketplace installer | **Experimental** — returns honest "not implemented" |
+| ELF provider | **Experimental** — real ELF header parse; no symbol extraction (use ghidra adapter) |
+| React UI (Vite) / Tauri desktop | **Experimental** — browser build cannot bundle `node:*` core modules |
 
 ## Documentation
 
 - [Architecture](docs/architecture.md)
 - [Plugin SDK](docs/plugin-sdk.md)
 - [RFCs](docs/rfcs/0001-capabilities.md)
-- [Benchmarks](docs/BENCHMARKS.md)
-- [Release Criteria](docs/RELEASE_CRITERIA.md)
+- [Benchmarks (measured)](docs/BENCHMARKS.md)
+- [Release Criteria (honest gates)](docs/RELEASE_CRITERIA.md)
+- [Known Limitations](docs/KNOWN_LIMITATIONS.md)
+- [Release deliverables](docs/release/)
 
 ## Contributing
 
@@ -123,7 +122,10 @@ changes require an RFC under `docs/rfcs/`.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) for the security policy and vulnerability reporting.
+See [SECURITY.md](SECURITY.md) for the security policy, and
+[docs/release/SECURITY_REPORT.md](docs/release/SECURITY_REPORT.md) for the current
+audit. No hardcoded secrets; Zip Slip / path traversal protections are enforced and
+tested.
 
 ## License
 

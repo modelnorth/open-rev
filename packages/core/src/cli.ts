@@ -2,14 +2,14 @@
  * OpenRev CLI Entrypoint
  *
  * Commands:
- *   openrev analyze <file>           Run the static analysis pipeline
- *   openrev deps                     Run real dependency health checks
- *   openrev graph                    Print the Artifact Knowledge Graph
- *   openrev search <query>           Search graph nodes and indexed documents
- *   openrev report [--out file.md]   Generate a Markdown analysis report
- *   openrev workflow <target>        Run the default audit workflow DAG
- *   openrev capabilities             List capability contracts
- *   openrev version                  Print version
+ *   openrev analyze <file> [--out report.md]   Run the real analysis pipeline
+ *   openrev deps                                Run real dependency health checks
+ *   openrev graph <file>                        Print the knowledge graph from a real analysis
+ *   openrev search <file> <query>               Search a real analysis' indexed documents
+ *   openrev report <file> [--out file.md]       Generate a Markdown analysis report
+ *   openrev workflow <target>                   Run the audit workflow DAG (honest results)
+ *   openrev capabilities                        List capability contracts
+ *   openrev version                             Print version
  *
  * Global flags:
  *   --json    Emit machine-readable JSON on stdout (logs go to stderr)
@@ -24,8 +24,9 @@ import {
   ArtifactKnowledgeGraph,
   CapabilityEngine,
   SearchIndexer,
-  ReportGenerator,
-  WorkflowEngine
+  SQLiteWorkspace,
+  WorkflowEngine,
+  AnalysisPipeline
 } from './index.ts';
 
 import { writeFile } from 'node:fs/promises';
@@ -34,7 +35,7 @@ interface CliOptions {
   json: boolean;
 }
 
-const VERSION = '0.1.0-alpha.1';
+const VERSION = '0.1.0-alpha.2';
 
 function log(...args: unknown[]): void {
   console.error(...args);
@@ -63,11 +64,11 @@ const HELP = `OpenRev CLI v${VERSION}
 Usage: openrev <command> [args] [--json]
 
 Commands:
-  analyze <file>          Run the static analysis pipeline
+  analyze <file>          Run the real analysis pipeline
   deps                    Run real dependency health checks
-  graph                   Print the Artifact Knowledge Graph
-  search <query>          Search graph nodes and indexed documents
-  report [--out file.md]  Generate a Markdown analysis report
+  graph <file>            Print the knowledge graph from a real analysis
+  search <file> <query>   Search a real analysis' indexed documents
+  report <file> [--out]   Generate a Markdown analysis report
   workflow <target>       Run the default audit workflow DAG
   capabilities            List capability contracts
   version                 Print version
@@ -77,6 +78,16 @@ Global flags:
   --json    Emit machine-readable JSON on stdout
   --help    Show help
 `;
+
+function formatError(err: unknown): string {
+  if (err instanceof Error) {
+    const anyErr = err as any;
+    const code = typeof anyErr.code === 'string' ? `[${anyErr.code}] ` : '';
+    const remediation = typeof anyErr.remediation === 'string' ? ` ${anyErr.remediation}` : '';
+    return `${code}${err.message}${remediation}`;
+  }
+  return String(err);
+}
 
 export async function runCli(argv: string[]): Promise<number> {
   const { command, args, options } = parseArgs(argv);
@@ -120,77 +131,134 @@ export async function runCli(argv: string[]): Promise<number> {
     }
     case 'analyze': {
       const target = args[0];
+      const outIdx = args.indexOf('--out');
+      const outPath = outIdx >= 0 ? args[outIdx + 1] : undefined;
       if (!target) {
         log('Error: "analyze" requires a target file path.');
         return 2;
       }
-      const registry = new DependencyRegistry();
-      const graph = new ArtifactKnowledgeGraph();
-      const capEngine = new CapabilityEngine(registry, graph);
-      const result = await capEngine.executeCapability('static.analyze_apk', { targetPath: target });
-      output(
-        {
-          success: result.success,
-          capabilityId: result.capabilityId,
-          toolUsed: result.toolUsed,
-          outputSummary: result.outputSummary,
-          artifactsProduced: result.artifactsProduced,
-          graphNodes: graph.getAllNodes(),
-          graphEdges: graph.getAllEdges()
-        },
-        options
-      );
-      return result.success ? 0 : 1;
+      const pipeline = new AnalysisPipeline({ storeArtifacts: true });
+      try {
+        const result = await pipeline.run(target);
+        if (outPath) {
+          await writeFile(outPath, result.reportMarkdown, 'utf8');
+        }
+        output(
+          {
+            success: true,
+            fileName: result.fileName,
+            sha256: result.hash,
+            packageName: result.analysis.packageName,
+            versionCode: result.analysis.versionCode,
+            versionName: result.analysis.versionName ?? null,
+            minSdkVersion: result.analysis.minSdkVersion ?? null,
+            targetSdkVersion: result.analysis.targetSdkVersion ?? null,
+            permissions: result.analysis.usesPermissions,
+            activities: result.analysis.activities,
+            services: result.analysis.services,
+            receivers: result.analysis.receivers,
+            providers: result.analysis.providers,
+            exportedComponents: result.analysis.exportedComponents,
+            launchActivity: result.analysis.launchActivity ?? null,
+            graphNodes: result.graph.nodes.length,
+            graphEdges: result.graph.edges.length,
+            searchDocuments: result.searchResultCount,
+            artifactsStored: result.artifactCount,
+            workspaceId: result.workspace.recordId,
+            reportPath: outPath ?? null,
+            elapsedMs: result.elapsedMs
+          },
+          options
+        );
+        return 0;
+      } catch (err) {
+        log(`Error: ${formatError(err)}`);
+        return 1;
+      }
     }
     case 'graph': {
-      const registry = new DependencyRegistry();
-      const graph = new ArtifactKnowledgeGraph();
-      const capEngine = new CapabilityEngine(registry, graph);
-      await capEngine.executeCapability('static.analyze_apk', { targetPath: 'SampleApp.apk' });
-      output({ nodes: graph.getAllNodes(), edges: graph.getAllEdges() }, options);
-      return 0;
-    }
-    case 'search': {
-      const query = args[0];
-      if (!query) {
-        log('Error: "search" requires a query string.');
+      const target = args[0];
+      if (!target) {
+        log('Error: "graph" requires a target file path.');
         return 2;
       }
-      const indexer = new SearchIndexer();
-      indexer.addDocument({
-        id: 'doc_manifest',
-        category: 'manifest',
-        title: 'AndroidManifest.xml',
-        content: '<uses-permission android:name="android.permission.INTERNET" />',
-        filePath: 'AndroidManifest.xml'
-      });
-      indexer.addDocument({
-        id: 'doc_act_main',
-        category: 'class',
-        title: 'MainActivity',
-        content: 'public class MainActivity extends AppCompatActivity',
-        filePath: 'com/example/sampleapp/MainActivity.java'
-      });
-      const results = indexer.search(query);
-      output(results, options);
-      return 0;
+      const pipeline = new AnalysisPipeline({ storeArtifacts: false });
+      try {
+        const result = await pipeline.run(target);
+        output({ nodes: result.graph.nodes, edges: result.graph.edges }, options);
+        return 0;
+      } catch (err) {
+        log(`Error: ${formatError(err)}`);
+        return 1;
+      }
+    }
+    case 'search': {
+      const target = args[0];
+      const query = args[1];
+      if (!target || !query) {
+        log('Error: "search" requires a target file path and a query string.');
+        return 2;
+      }
+      const workspace = new SQLiteWorkspace(`.openrev/workspaces/search_${Date.now()}.db`);
+      try {
+        const pipeline = new AnalysisPipeline({
+          storeArtifacts: false,
+          workspaceDbPath: workspace.dbPathDisplay()
+        });
+        await pipeline.run(target);
+        await workspace.init();
+        const docs = await workspace.loadSearchDocuments();
+        const indexer = new SearchIndexer();
+        for (const doc of docs) {
+          indexer.addDocument({
+            id: doc.id,
+            category: doc.category,
+            title: doc.title,
+            content: doc.content,
+            filePath: doc.file_path ?? undefined,
+            metadata: doc.metadata ? JSON.parse(doc.metadata) : undefined
+          });
+        }
+        const results = indexer.search(query);
+        output(
+          {
+            query,
+            target,
+            indexedDocuments: docs.length,
+            results
+          },
+          options
+        );
+        return 0;
+      } catch (err) {
+        log(`Error: ${formatError(err)}`);
+        return 1;
+      } finally {
+        await workspace.close();
+      }
     }
     case 'report': {
+      const target = args[0];
       const outIdx = args.indexOf('--out');
       const outPath = outIdx >= 0 ? args[outIdx + 1] : undefined;
-      const registry = new DependencyRegistry();
-      const graph = new ArtifactKnowledgeGraph();
-      const capEngine = new CapabilityEngine(registry, graph);
-      await capEngine.executeCapability('static.analyze_apk', { targetPath: 'SampleApp.apk' });
-      const generator = new ReportGenerator(graph);
-      const markdown = generator.generateMarkdownReport();
-      if (outPath) {
-        await writeFile(outPath, markdown, 'utf8');
-        output({ reportPath: outPath, bytes: markdown.length }, options);
-      } else {
-        console.log(markdown);
+      if (!target) {
+        log('Error: "report" requires a target file path.');
+        return 2;
       }
-      return 0;
+      const pipeline = new AnalysisPipeline({ storeArtifacts: false });
+      try {
+        const result = await pipeline.run(target);
+        if (outPath) {
+          await writeFile(outPath, result.reportMarkdown, 'utf8');
+          output({ reportPath: outPath, bytes: result.reportMarkdown.length }, options);
+        } else {
+          console.log(result.reportMarkdown);
+        }
+        return 0;
+      } catch (err) {
+        log(`Error: ${formatError(err)}`);
+        return 1;
+      }
     }
     case 'workflow': {
       const target = args[0];

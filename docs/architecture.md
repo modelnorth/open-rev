@@ -2,6 +2,14 @@
 
 **OpenRev** is a cross-platform desktop software intelligence and reverse-engineering platform designed around generic software artifacts and capability-based tool orchestration.
 
+> **Implementation-status note (0.1.0-alpha.1):** The **Core Engine** layers shown
+> below — ZIP/AXML parsing, the Android provider, the analysis pipeline, SQLite
+> workspace, search, adapters, CLI, and MCP server — are **real and tested**. The
+> **Desktop Host Layer** (Tauri/UI) and the **AI Copilot / RAG** nodes are
+> **experimental** and not part of the release gate. See
+> [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md) and
+> [RELEASE_CRITERIA.md](RELEASE_CRITERIA.md).
+
 ---
 
 ## 🏛️ Monorepo & System Layers

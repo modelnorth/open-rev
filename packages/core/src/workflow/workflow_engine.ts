@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OpenRev Workflow DAG Execution Engine
  * 
  * Executes multi-step analysis pipelines sequentially or concurrently:
@@ -30,11 +30,11 @@ export class WorkflowEngine {
   }
 
   public async executeDAG(dag: WorkflowDAG, targetPath: string): Promise<Record<string, any>> {
-    console.log(`[WorkflowEngine] Starting DAG Execution: "${dag.name}" on ${targetPath}`);
+    console.error(`[WorkflowEngine] Starting DAG Execution: "${dag.name}" on ${targetPath}`);
     const results: Record<string, any> = {};
 
     for (const node of dag.nodes) {
-      console.log(`[WorkflowEngine] Running node: ${node.name} (${node.capabilityId})`);
+      console.error(`[WorkflowEngine] Running node: ${node.name} (${node.capabilityId})`);
       const res = await this.capabilityEngine.executeCapability(node.capabilityId, {
         targetPath,
         options: node.params

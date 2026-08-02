@@ -1,11 +1,16 @@
-/**
+﻿/**
  * OpenRev Software Intelligence Platform - Core Architecture Interfaces
- * 
+ *
  * Implements 3-Service Architecture Separation:
  * 1. Execution Engine (Providers, Workflows, Scheduling, Sandboxing)
  * 2. Knowledge Engine (Artifact Store, Artifact Schemas, Knowledge Graph, Domain Query API, Search, Indexing)
  * 3. Intelligence Engine (RAG, AI Planning, Tool-Calling, Report Generation)
+ *
+ * Domain query methods now run REAL queries against a knowledge graph produced
+ * from actual artifact analysis. Nothing is hardcoded.
  */
+
+import { ArtifactKnowledgeGraph, type GraphNode } from '../graph/knowledge_graph';
 
 // --- 1. Versioned Capability Contracts ---
 export interface CapabilityContract<TInput = any, TOutput = any> {
@@ -40,19 +45,47 @@ export class NormalizedArtifact {
 
 // --- 3. Domain-Specific Knowledge Graph Query API ---
 export class KnowledgeGraphQueryAPI {
-  public async findActivitiesUsingPermission(permissionName: string): Promise<any[]> {
-    console.log(`[GraphQueryAPI] Querying activities using permission: ${permissionName}`);
-    return [{ activity: 'MainActivity', permission: permissionName }];
+  private graph: ArtifactKnowledgeGraph;
+
+  constructor(graph?: ArtifactKnowledgeGraph) {
+    this.graph = graph ?? new ArtifactKnowledgeGraph();
   }
 
-  public async findEndpointsRequiringAuth(): Promise<any[]> {
-    console.log(`[GraphQueryAPI] Querying endpoints requiring authentication`);
-    return [{ endpoint: '/api/v1/auth/login', authRequired: true }];
+  public setGraph(graph: ArtifactKnowledgeGraph): void {
+    this.graph = graph;
   }
 
-  public async findExportedComponents(): Promise<any[]> {
-    console.log(`[GraphQueryAPI] Querying exported components`);
-    return [{ name: 'com.example.sampleapp.MainActivity', type: 'Activity', exported: true }];
+  public async findActivitiesUsingPermission(permissionName: string): Promise<GraphNode[]> {
+    return this.graph
+      .getAllNodes()
+      .filter((n) => n.type === 'Activity')
+      .filter((n) => n.properties?.permissions?.includes(permissionName));
+  }
+
+  public async findEndpointsRequiringAuth(): Promise<GraphNode[]> {
+    return this.graph
+      .getAllNodes()
+      .filter((n) => n.type === 'ApiEndpoint')
+      .filter((n) => n.properties?.authRequired === true);
+  }
+
+  public async findExportedComponents(): Promise<GraphNode[]> {
+    return this.graph
+      .getAllNodes()
+      .filter((n) => ['Activity', 'Service', 'Receiver', 'Provider'].includes(n.type))
+      .filter((n) => n.properties?.exported === true);
+  }
+
+  public async findComponentsWithCleartextTraffic(): Promise<GraphNode[]> {
+    const manifest = this.graph.getAllNodes().find((n) => n.type === 'Manifest');
+    if (manifest?.properties?.usesCleartextTraffic === true) {
+      return [manifest];
+    }
+    return [];
+  }
+
+  public async queryNodesByType(type: string): Promise<GraphNode[]> {
+    return this.graph.getAllNodes().filter((n) => n.type === type);
   }
 }
 
@@ -77,12 +110,12 @@ export class WorkspaceSnapshotEngine {
       artifactHashes
     };
     this.snapshots.set(snap.id, snap);
-    console.log(`[SnapshotEngine] Created snapshot ${snap.id}: "${description}"`);
+    console.error(`[SnapshotEngine] Created snapshot ${snap.id}: "${description}"`);
     return snap;
   }
 
   public restoreSnapshot(id: string): Snapshot | undefined {
-    console.log(`[SnapshotEngine] Restoring snapshot ${id}`);
+    console.error(`[SnapshotEngine] Restoring snapshot ${id}`);
     return this.snapshots.get(id);
   }
 }
