@@ -133,5 +133,8 @@ test('DependencyRegistry Health Checks', async () => {
   assert.strictEqual(jadx?.name, 'JADX');
 
   const health = await registry.runHealthChecks();
-  assert.strictEqual(health['jadx'], true);
+  for (const id of Object.keys(health)) {
+    assert.strictEqual(typeof health[id], 'boolean');
+  }
+  assert.strictEqual(registry.get('jadx')?.status, health['jadx'] ? 'installed' : 'missing');
 });

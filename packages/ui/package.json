@@ -4,13 +4,23 @@
   "private": true,
   "description": "Dockable Multi-Panel UI for OpenRev Platform",
   "main": "src/App.tsx",
-  "dependencies": {
-    "@openrev/core": "file:../core",
-    "@openrev/plugin-sdk": "file:../plugin-sdk"
-  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build": "vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@openrev/core": "file:../core",
+    "@openrev/plugin-sdk": "file:../plugin-sdk",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
   },
   "license": "Apache-2.0"
 }

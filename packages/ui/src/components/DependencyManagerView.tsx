@@ -33,7 +33,7 @@ export const DependencyManagerView: React.FC = () => {
                 padding: '16px',
                 display: 'flex',
                 flexDirection: 'column',
-                justify: 'space-between'
+                justifyContent: 'space-between'
               }}
             >
               <div>

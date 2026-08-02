@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Provider Registry for Software Intelligence Artifacts (Android, iOS, PE, ELF, Mach-O, Network, GitHub, Docker)",
-  "main": "dist/index.js",
+  "main": "index.ts",
+  "types": "index.ts",
   "license": "Apache-2.0"
 }

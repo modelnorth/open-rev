@@ -109,3 +109,5 @@ export class PluginContext {
     console.log(`[PluginSDK:${this.manifest.id}] Registered AI Provider: ${providerId}`);
   }
 }
+
+export * from './scaffolder';

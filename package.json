@@ -9,14 +9,20 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace=packages/ui",
-    "build": "npm run typecheck",
-    "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test tests/unit/core.test.ts tests/adapters/adapters.test.ts"
+    "build": "npm run typecheck && npm run build --workspace=@openrev/ui",
+    "typecheck": "tsc --noEmit && npm run typecheck --workspace=@openrev/ui",
+    "test": "node --import tsx --test tests/unit/core.test.ts tests/adapters/adapters.test.ts",
+    "cli": "node --import tsx bin/openrev.js",
+    "mcp": "node --import tsx packages/mcp-server/src/index.ts"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
     "tsx": "^4.19.2",
     "typescript": "^7.0.2"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "esbuild@0.21.5": true
+  }
 }

@@ -37,4 +37,14 @@ jobs:
         run: npm run build
 
       - name: CLI Binary Smoke Test
-        run: node --import tsx bin/openrev.js import SampleApp.apk
+        run: node --import tsx bin/openrev.js analyze SampleApp.apk --json
+
+      - name: MCP Server Smoke Test (tools/list over stdio)
+        shell: bash
+        run: |
+          printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"ci","version":"1.0"}}}' \
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+            | node --import tsx packages/mcp-server/src/index.ts \
+            | grep -q '"name":"list_capabilities"' && echo "MCP OK"

@@ -4,5 +4,15 @@
   "type": "module",
   "description": "Reusable UI Component SDK for OpenRev Platform",
   "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@openrev/core": "file:../core"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12"
+  },
   "license": "Apache-2.0"
 }

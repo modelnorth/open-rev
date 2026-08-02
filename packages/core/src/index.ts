@@ -22,3 +22,4 @@ export * from './rag/rag_indexer';
 export * from './ai/ai_agent';
 export * from './workflow/workflow_engine';
 export * from './report/report_generator';
+export * from './search/indexer';

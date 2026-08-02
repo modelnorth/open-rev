@@ -12,5 +12,8 @@
     "@openrev/ui": "file:../ui",
     "@openrev/core": "file:../core"
   },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.6.0"
+  },
   "license": "Apache-2.0"
 }
