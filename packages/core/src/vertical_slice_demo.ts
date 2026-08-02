@@ -1,4 +1,4 @@
-﻿/**
+/**
  * OpenRev Milestone 0 - Vertical Slice Execution Demo & Verification
  *
  * Demonstrates the real end-to-end execution flow:
@@ -7,7 +7,7 @@
  * 5. Index search documents -> 6. Persist to SQLite workspace ->
  * 7. Generate report.
  *
- * Backed entirely by the AnalysisPipeline â€” no fabricated data.
+ * Backed entirely by the AnalysisPipeline — no fabricated data.
  */
 
 import { AnalysisPipeline } from './pipeline/analysis_pipeline.ts';

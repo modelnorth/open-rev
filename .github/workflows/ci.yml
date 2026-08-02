@@ -55,6 +55,69 @@ jobs:
             | node --import tsx packages/mcp-server/src/index.ts \
             | grep -q 'com.example.two_rings' && echo "MCP OK"
 
-  # The browser UI (packages/ui, vite) bundles Node-only core modules and is
-  # treated as experimental — it is NOT part of the release gate.
-  # See KNOWN_LIMITATIONS.md for details.
+  # Build the Tauri desktop app on all supported OSes. macOS/Linux cannot be
+  # built on a Windows dev machine, so this job IS the cross-platform gate
+  # (see V1_GATE_AUDIT.md). GitHub runners preinstall VS Build Tools (Windows),
+  # Xcode CLT (macOS), and rustup (all); Linux needs the WebKitGTK system deps.
+  desktop-build:
+    name: Desktop Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+
+      - name: Install Monorepo Dependencies
+        run: npm ci
+
+      - name: Build Frontend (vite)
+        run: npm run build:ui
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/desktop/src-tauri
+
+      - name: Install Linux system dependencies (WebKitGTK etc.)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: Build Desktop (cargo release)
+        run: cargo build --release --locked
+        working-directory: packages/desktop/src-tauri
+
+      - name: Verify binary exists
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then BIN="packages/desktop/src-tauri/target/release/openrev-desktop.exe"; else BIN="packages/desktop/src-tauri/target/release/openrev-desktop"; fi
+          test -x "$BIN" && echo "DESKTOP BUILD OK: $BIN"
+
+      - name: Launch smoke (best-effort, headless-friendly)
+        shell: bash
+        continue-on-error: true
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo apt-get install -y xvfb >/dev/null 2>&1 || true
+            xvfb-run -a timeout 10 packages/desktop/src-tauri/target/release/openrev-desktop >/dev/null 2>&1; code=$?
+            # 124 = timed out while running (app stayed alive) -> treat as OK
+            [ $code -eq 124 ] && echo "LAUNCH OK (alive until timeout)" || echo "launch exited with $code"
+          else
+            timeout 10 packages/desktop/src-tauri/target/release/openrev-desktop >/dev/null 2>&1; code=$?
+            [ $code -eq 124 ] && echo "LAUNCH OK (alive until timeout)" || echo "launch exited with $code"
+          fi
+
+  # The desktop UI/analysis backend is real; macOS/Linux builds are verified
+  # by the desktop-build job above. See KNOWN_LIMITATIONS.md.

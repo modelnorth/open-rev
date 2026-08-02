@@ -35,8 +35,8 @@ Verdict legend: ✅ = verified with real execution on this machine · ⚠️ = p
 | Criterion | Status | Evidence |
 |---|---|---|
 | Windows build works | ✅ | `cargo build` + `cargo build --release` both succeed (MSVC toolchain) |
-| macOS build works | 🔴 | requires macOS; CI matrix pending |
-| Linux build works | 🔴 | requires Linux; CI matrix pending |
+| macOS build works | ⏳ | `desktop-build` CI job (macos-latest) added; awaiting a GitHub Actions run |
+| Linux build works | ⏳ | `desktop-build` CI job (ubuntu-latest + WebKitGTK deps) added; awaiting a run |
 | No startup crashes | ✅ | debug + release exe launched, alive 5 s+, no crash |
 | No runtime crashes | ⚠️ | UI smoke test renders all views with zero console errors; real-webview IPC round-trip pending interactive use |
 

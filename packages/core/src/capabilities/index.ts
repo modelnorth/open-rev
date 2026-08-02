@@ -1,9 +1,9 @@
-﻿/**
+/**
  * OpenRev Capability API & Tool Runtime Selection Layer
  *
  * Decouples user intent ("Analyze APK", "Decompile Source", "Extract Resources")
  * from specific tooling. `static.analyze_apk` runs the REAL analysis pipeline
- * (hash â†’ store â†’ decode â†’ extract â†’ graph â†’ index â†’ workspace â†’ report).
+ * (hash → store → decode → extract → graph → index → workspace → report).
  * Capabilities that require uninstalled tools (decompile/intercept/device)
  * return honest errors describing the missing prerequisite.
  */

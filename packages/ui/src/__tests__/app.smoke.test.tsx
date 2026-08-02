@@ -30,7 +30,7 @@ describe('OpenRev desktop UI smoke test', () => {
     // Initial shell: no analysis yet
     expect(screen.getByText(/Open an APK to begin/i)).toBeInTheDocument();
 
-    // "Import a real APK" â€” the Open APK button drives the Tauri IPC path
+    // "Import a real APK" - the Open APK button drives the Tauri IPC path
     const openButton = screen.getAllByRole('button', { name: /Open APK/i })[0];
     fireEvent.click(openButton);
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * OpenRev MCP Server
  * 
  * Exposes OpenRev reverse-engineering capabilities to AI coding assistants
@@ -6,15 +6,15 @@
  * Protocol using stdio transport.
  *
  * Tools exposed:
- *   analyze_target      â€” run the static analysis pipeline against a binary/APK
- *   list_capabilities   â€” list registered capability contracts
- *   check_dependencies  â€” run real health checks against external RE tools
- *   search_graph        â€” search the Artifact Knowledge Graph
- *   query_graph_api     â€” run domain queries (exported components, endpoints, permissions)
- *   generate_report     â€” produce a Markdown analysis report from the graph
- *   run_workflow        â€” execute a workflow DAG
- *   analyze_provider    â€” run a registered provider (e.g. provider.android)
- *   create_plugin       â€” scaffold a new plugin
+ *   analyze_target      — run the static analysis pipeline against a binary/APK
+ *   list_capabilities   — list registered capability contracts
+ *   check_dependencies  — run real health checks against external RE tools
+ *   search_graph        — search the Artifact Knowledge Graph
+ *   query_graph_api     — run domain queries (exported components, endpoints, permissions)
+ *   generate_report     — produce a Markdown analysis report from the graph
+ *   run_workflow        — execute a workflow DAG
+ *   analyze_provider    — run a registered provider (e.g. provider.android)
+ *   create_plugin       — scaffold a new plugin
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';

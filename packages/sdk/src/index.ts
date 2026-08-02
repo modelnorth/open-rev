@@ -1,8 +1,8 @@
-﻿/**
+/**
  * High-Level Public SDK for OpenRev Platform (@openrev/sdk)
  *
- * `analyzeTarget` runs the real analysis pipeline (hash â†’ store â†’ decode â†’
- * extract â†’ graph â†’ index â†’ workspace â†’ report) against a real APK/AAB file.
+ * `analyzeTarget` runs the real analysis pipeline (hash → store → decode →
+ * extract → graph → index → workspace → report) against a real APK/AAB file.
  */
 
 import { PlatformGateway } from '../../core/src/api/platform_gateway.ts';
