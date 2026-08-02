@@ -15,6 +15,7 @@ jobs:
         # node:sqlite (Node >= 22.5) is a hard dependency of the real workspace layer.
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [22.x, 24.x]
+      fail-fast: false
 
     steps:
       - uses: actions/checkout@v4
@@ -66,7 +67,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        # Tauri v1 needs webkit2gtk-4.0 (libwebkit2gtk-4.0-dev), which exists on
+        # Ubuntu <= 22.04 only (removed in 24.04). Pin Linux to 22.04.
+        os: [ubuntu-22.04, windows-latest, macos-latest]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v4
 
