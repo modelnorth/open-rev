@@ -1,16 +1,12 @@
-﻿{
+{
   "name": "@openrev/desktop",
   "version": "0.1.0-alpha.2",
   "private": true,
-  "description": "[EXPERIMENTAL] Tauri Desktop Host Application for OpenRev Platform â€” requires Rust/cargo toolchain; not part of the release gate",
+  "description": "OpenRev Tauri desktop host — real Rust command bridge (file dialog, analysis sidecar, error reporting); requires the Rust toolchain to build",
   "scripts": {
     "tauri": "tauri",
     "dev": "tauri dev",
     "build": "tauri build"
-  },
-  "dependencies": {
-    "@openrev/ui": "file:../ui",
-    "@openrev/core": "file:../core"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.6.0"

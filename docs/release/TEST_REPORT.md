@@ -50,12 +50,21 @@ Requires jadx + apktool (auto-detected; skips honestly when absent).
 ### `tests/mcp/mcp.test.ts` — real MCP client over in-memory transport
 - `tools/list` schemas; analyze/query/report/provider; typed `FILE_NOT_FOUND`
 
+### `packages/ui` — UI smoke tests (`npm run test:ui`, vitest + jsdom)
+Requires no real Tauri runtime (IPC mocked at the JS boundary; real analysis fixture).
+- **Launch + import APK via IPC**: render → Open APK → loading → manifest/resources/
+  graph (33 nodes)/code (decompiled MainActivity.java)/report render with **zero
+  console errors**
+- **Crash screen + workspace recovery**: analysis failure → crash screen → Retry → shell
+
 ## What the tests do NOT cover (honesty)
 
 - Ghidra success path (analyzeHeadless not installed) — `TOOL_NOT_FOUND` only.
 - Real device interaction (no device attached).
 - AI/RAG (no LLM provider).
-- Browser UI / Tauri (experimental).
+- Real webview IPC round-trip (the desktop shell launches; the UI smoke test drives the
+  same flow with IPC mocked — a live "Open APK → real dialog → real sidecar" test needs
+  interactive use).
 - Decompile tests skip (do not run) on machines without jadx/apktool — they never fake success.
 
 ## Test suites & coverage areas

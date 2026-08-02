@@ -1,9 +1,9 @@
-﻿{
+{
   "name": "openrev-monorepo",
   "version": "0.1.0-alpha.2",
   "private": true,
   "type": "module",
-  "description": "OpenRev â€“ Unified Software Intelligence & Reverse Engineering Platform",
+  "description": "OpenRev — Unified Software Intelligence & Reverse Engineering Platform",
   "workspaces": [
     "packages/*"
   ],
@@ -11,9 +11,11 @@
     "dev": "npm run dev --workspace=packages/ui",
     "build": "npm run typecheck",
     "build:ui": "npm run build --workspace=@openrev/ui",
+    "build:desktop": "npm run build --workspace=@openrev/desktop",
     "typecheck": "tsc --noEmit && npm run typecheck --workspace=@openrev/ui",
     "test": "node --import tsx --test --test-timeout=60000 tests/unit/core.test.ts tests/unit/cli.test.ts tests/adapters/adapters.test.ts tests/integration/pipeline.test.ts tests/integration/decompile.test.ts tests/mcp/mcp.test.ts",
     "test:coverage": "node --import tsx --test --experimental-test-coverage --test-timeout=60000 tests/unit/core.test.ts tests/unit/cli.test.ts tests/adapters/adapters.test.ts tests/integration/pipeline.test.ts tests/integration/decompile.test.ts tests/mcp/mcp.test.ts",
+    "test:ui": "npm run test:ui --workspace=@openrev/ui",
     "cli": "node --import tsx bin/openrev.js",
     "mcp": "node --import tsx packages/mcp-server/src/index.ts"
   },

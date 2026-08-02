@@ -99,6 +99,29 @@ blocked (see `docs/KNOWN_LIMITATIONS.md`).
   absent.
 - **Test count 47 → 57**, all green; coverage 83.0% line.
 
+### Production Desktop (RC-2)
+
+- **Browser-safe frontend** (`packages/ui`): removed every `@openrev/core` import
+  (which pulled `node:*` modules into the browser bundle). The UI is now a data-driven
+  React app with a `src/tauri.ts` IPC client — all filesystem/process work delegates to
+  Tauri commands. `vite build` succeeds with no `node:*` bundling errors.
+- **Real Rust command bridge** (`packages/desktop/src-tauri/src/main.rs`): `pick_apk`
+  (native file dialog), `analyze_apk` (spawns the real Node analysis sidecar
+  `packages/desktop/sidecar/analyze.mjs` and returns its JSON), `report_error`,
+  `get_version`. The fabricated `run_tool_command` ("Simulated output") was removed.
+- **UI states**: loading screen (indeterminate progress), crash screen, error boundary
+  with error reporting, workspace recovery (Retry), progress indicator.
+- **Verified on Windows**: `cargo build` + `cargo build --release` succeed; debug and
+  release exes launch with **no startup crash** (WebView2 + MSVC Build Tools).
+- **UI smoke tests** (`npm run test:ui`, vitest + testing-library): launch → import a
+  real APK via IPC → render manifest/resources/graph/code/report with **zero console
+  errors**, plus crash-screen + workspace-recovery. 2 tests pass.
+- **Sidecar** produces the real `AnalysisResult` JSON (manifest, graph, decompiled
+  sources, decoded layouts, report) — testable with `node --import tsx
+  packages/desktop/sidecar/analyze.mjs <apk>`.
+- Toolchain note: Rust (MSVC) + VS Build Tools installed on this machine to enable the
+  build; macOS/Linux builds remain pending CI.
+
 ### Known limitations
 
 See [`docs/KNOWN_LIMITATIONS.md`](docs/KNOWN_LIMITATIONS.md). In short: jadx/apktool/

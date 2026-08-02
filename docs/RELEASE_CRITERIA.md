@@ -24,16 +24,16 @@ Gates are evaluated by `scripts/` and the CI workflow `.github/workflows/ci.yml`
 | G12 | Ghidra headless (analyzeHeadless) verified | requires Ghidra installed | 🔴 BLOCKED (absent locally) |
 | G13 | Device runtime verified against a real Android device | requires connected device | 🔴 BLOCKED (0 devices; `adb devices -l` path verified only) |
 | G14 | AI/RAG capabilities verified | requires LLM provider keys | 🔴 BLOCKED (marked experimental, never faked) |
-| G15 | Desktop UI (Tauri) runs without manual editing | `npm run build:ui` (vite build) | 🔴 BLOCKED (browser build cannot bundle `node:*` core; UI marked experimental) |
+| G15 | Desktop app builds and launches | `cargo build --release` + launch (no startup crash) on Windows; UI smoke tests (`npm run test:ui`) | ✅ Windows verified (macOS/Linux pending CI) |
 | G16 | Cross-platform green build | CI matrix (ubuntu/windows/macos × Node 22/24) | ⏳ pending CI run on GitHub |
 
 ---
 
 ## Honest status summary
 
-- **Verified now (this machine)**: G1–G11 (jadx + apktool success paths now verified).
-- **Blocked on this machine (documented, not faked)**: G12 (ghidra), G13 (device), G14 (AI), G15 (desktop).
-- **Pending external verification**: G16 (requires a GitHub Actions run).
+- **Verified now (this machine)**: G1–G11 (jadx + apktool success paths), G15 (desktop Windows build + launch).
+- **Blocked on this machine (documented, not faked)**: G12 (ghidra), G13 (device), G14 (AI).
+- **Pending external verification**: G16 (3-OS CI; macOS/Linux desktop builds).
 
 A release can proceed with G1–G10 green and all BLOCKED gates documented in
 `KNOWN_LIMITATIONS.md` — but it **cannot** claim jadx/apktool/ghidra/device/AI/desktop

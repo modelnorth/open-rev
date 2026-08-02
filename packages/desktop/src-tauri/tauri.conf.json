@@ -3,26 +3,17 @@
     "beforeDevCommand": "npm run dev --workspace=@openrev/ui",
     "beforeBuildCommand": "npm run build --workspace=@openrev/ui",
     "devPath": "http://localhost:3000",
-    "distDir": "../ui/dist"
+    "distDir": "../../ui/dist"
   },
   "package": {
     "productName": "OpenRev",
-    "version": "1.0.0"
+    "version": "0.1.0-alpha.2"
   },
   "tauri": {
     "allowlist": {
       "all": false,
-      "fs": {
-        "all": true,
-        "scope": ["$APPData/**", "$DESKTOP/**", "$DOCUMENT/**"]
-      },
-      "process": {
-        "relaunch": true
-      },
-      "shell": {
-        "all": true,
-        "execute": true,
-        "open": true
+      "dialog": {
+        "all": true
       }
     },
     "bundle": {

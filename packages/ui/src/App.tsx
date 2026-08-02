@@ -1,36 +1,77 @@
-import React, { useState } from 'react';
-import { ArtifactKnowledgeGraph, CapabilityEngine, DependencyRegistry } from '@openrev/core';
+import React, { useCallback, useEffect, useState } from 'react';
+import type { AnalysisResult, AnalysisProgress } from './types';
+import { isTauri, pickApk, analyzeApk, loadBundledSample, getVersion, APP_VERSION } from './tauri';
+import { LoadingScreen } from './components/LoadingScreen';
+import { CrashScreen } from './components/CrashScreen';
+import { OverviewView } from './components/OverviewView';
+import { ResourcesView } from './components/ResourcesView';
 import { GraphExplorer } from './components/GraphExplorer';
-import { CodeEditor } from './components/CodeEditor';
-import { DeviceManager } from './components/DeviceManager';
-import { NetworkInspector } from './components/NetworkInspector';
-import { AiCopilot } from './components/AiCopilot';
-import { WorkflowBuilder } from './components/WorkflowBuilder';
-import { DependencyManagerView } from './components/DependencyManagerView';
+import { CodeViewer } from './components/CodeViewer';
 import { ReportViewer } from './components/ReportViewer';
 import './index.css';
 
-export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<
-    'graph' | 'editor' | 'device' | 'network' | 'ai' | 'workflows' | 'deps' | 'report'
-  >('graph');
+type Tab = 'overview' | 'resources' | 'graph' | 'code' | 'report';
 
-  // Initialize Core Knowledge Graph & Capabilities
-  const [graph] = useState<ArtifactKnowledgeGraph>(() => {
-    const g = new ArtifactKnowledgeGraph();
-    const registry = new DependencyRegistry();
-    const cap = new CapabilityEngine(registry, g);
-    // Populate demo graph data
-    cap.executeCapability('static.analyze_apk', { targetPath: 'SampleApp.apk' });
-    return g;
-  });
+export const App: React.FC = () => {
+  const [tab, setTab] = useState<Tab>('overview');
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [progress, setProgress] = useState<AnalysisProgress>({ phase: 'idle' });
+  const [version, setVersion] = useState<string>(APP_VERSION);
+
+  useEffect(() => {
+    getVersion().then(setVersion).catch(() => setVersion(APP_VERSION));
+  }, []);
+
+  const runAnalysis = useCallback(async (loader: () => Promise<AnalysisResult>, name: string) => {
+    setProgress({ phase: 'analyzing', stage: `Analyzing ${name}…` });
+    try {
+      const result = await loader();
+      setAnalysis(result);
+      setFileName(name);
+      setProgress({ phase: 'loaded' });
+    } catch (err) {
+      setProgress({ phase: 'error', error: err instanceof Error ? err.message : String(err) });
+    }
+  }, []);
+
+  const openApk = useCallback(async () => {
+    if (!isTauri()) {
+      setProgress({
+        phase: 'error',
+        error: 'Opening an APK requires the desktop app. Use "Load sample analysis" in the web preview.'
+      });
+      return;
+    }
+    const path = await pickApk();
+    if (!path) return;
+    await runAnalysis(() => analyzeApk(path), path.split(/[\\/]/).pop() ?? path);
+  }, [runAnalysis]);
+
+  const loadSample = useCallback(() => {
+    void runAnalysis(() => loadBundledSample(), 'SampleApp.apk (bundled real analysis)');
+  }, [runAnalysis]);
+
+  const reset = useCallback(() => {
+    setProgress({ phase: 'idle' });
+    setAnalysis(null);
+    setFileName(null);
+  }, []);
+
+  if (progress.phase === 'analyzing') {
+    return <LoadingScreen progress={progress} onCancel={reset} />;
+  }
+  if (progress.phase === 'error') {
+    return <CrashScreen error={progress.error ?? 'Unknown error'} onRetry={reset} />;
+  }
+
+  const isTauriRuntime = isTauri();
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', backgroundColor: 'var(--bg-primary)' }}>
-      {/* Top Application Bar */}
       <header
         style={{
-          height: '42px',
+          height: '46px',
           backgroundColor: 'var(--bg-secondary)',
           borderBottom: '1px solid var(--border-color)',
           display: 'flex',
@@ -42,166 +83,93 @@ export const App: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span>⚡ OpenRev</span>
-            <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 400 }}>v1.0.0</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 400 }}>{version}</span>
           </div>
           <span style={{ color: 'var(--border-color)' }}>|</span>
           <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-            Workspace: <strong style={{ color: 'var(--text-primary)' }}>SampleApp.apk</strong>
+            Workspace: <strong style={{ color: 'var(--text-primary)' }}>{fileName ?? 'none'}</strong>
           </span>
         </div>
 
-        {/* Global Command Search Shortcut */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div
-            style={{
-              backgroundColor: 'var(--bg-primary)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '6px',
-              padding: '4px 10px',
-              fontSize: '11px',
-              color: 'var(--text-secondary)',
-              cursor: 'pointer'
-            }}
-          >
-            🔍 Search graph, code, endpoints... <span className="mono" style={{ fontSize: '10px', marginLeft: '6px' }}>Ctrl+K</span>
-          </div>
-          <span className="badge badge-green">Local-First</span>
+          <button className="btn btn-primary" onClick={() => void openApk()} disabled={!isTauriRuntime}>
+            📂 Open APK…
+          </button>
+          {!isTauriRuntime && (
+            <button className="btn" onClick={loadSample}>
+              🧪 Load sample analysis (web preview)
+            </button>
+          )}
         </div>
       </header>
 
-      {/* Main Body */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* Left Vertical Dock Bar */}
-        <nav
-          style={{
-            width: '180px',
-            backgroundColor: 'var(--bg-secondary)',
-            borderRight: '1px solid var(--border-color)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '4px',
-            padding: '8px'
-          }}
-        >
-          <button
-            className="btn"
-            onClick={() => setActiveTab('graph')}
+      {analysis ? (
+        <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+          <nav
             style={{
-              justifyContent: 'flex-start',
-              backgroundColor: activeTab === 'graph' ? 'var(--bg-tertiary)' : 'transparent',
-              color: activeTab === 'graph' ? 'var(--accent-blue)' : 'var(--text-primary)',
-              borderColor: activeTab === 'graph' ? 'var(--accent-blue)' : 'transparent'
+              width: '170px',
+              backgroundColor: 'var(--bg-secondary)',
+              borderRight: '1px solid var(--border-color)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px',
+              padding: '8px'
             }}
           >
-            🕸️ Graph Explorer
-          </button>
+            {(
+              [
+                ['overview', '📋 Manifest'],
+                ['resources', '🗂️ Resources'],
+                ['graph', '🕸️ Graph'],
+                ['code', '💻 Code'],
+                ['report', '📊 Report']
+              ] as [Tab, string][]
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                className="btn"
+                onClick={() => setTab(id)}
+                style={{
+                  justifyContent: 'flex-start',
+                  backgroundColor: tab === id ? 'var(--bg-tertiary)' : 'transparent',
+                  color: tab === id ? 'var(--accent-blue)' : 'var(--text-primary)',
+                  borderColor: tab === id ? 'var(--accent-blue)' : 'transparent'
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
 
-          <button
-            className="btn"
-            onClick={() => setActiveTab('editor')}
-            style={{
-              justifyContent: 'flex-start',
-              backgroundColor: activeTab === 'editor' ? 'var(--bg-tertiary)' : 'transparent',
-              color: activeTab === 'editor' ? 'var(--accent-blue)' : 'var(--text-primary)',
-              borderColor: activeTab === 'editor' ? 'var(--accent-blue)' : 'transparent'
-            }}
-          >
-            💻 Decompiler / Code
-          </button>
+          <main style={{ flex: 1, overflow: 'hidden' }}>
+            {tab === 'overview' && <OverviewView analysis={analysis} />}
+            {tab === 'resources' && <ResourcesView analysis={analysis} />}
+            {tab === 'graph' && <GraphExplorer nodes={analysis.graph.nodes} edges={analysis.graph.edges} />}
+            {tab === 'code' && <CodeViewer analysis={analysis} />}
+            {tab === 'report' && <ReportViewer analysis={analysis} />}
+          </main>
+        </div>
+      ) : (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+          <div style={{ fontSize: '44px' }}>⚡</div>
+          <div style={{ fontSize: '16px', fontWeight: 600 }}>Open an APK to begin</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', maxWidth: '420px', textAlign: 'center' }}>
+            {isTauriRuntime
+              ? 'Click "Open APK…" and choose a real APK/AAB. Analysis runs the real pipeline (manifest decode, graph, jadx decompile, apktool resource decode).'
+              : 'This is the web preview — no filesystem access. Click "Load sample analysis" to view a real analysis (manifest, resources, graph, decompiled code, report).'}
+          </div>
+          {isTauriRuntime ? (
+            <button className="btn btn-primary" onClick={() => void openApk()}>
+              📂 Open APK…
+            </button>
+          ) : (
+            <button className="btn btn-primary" onClick={loadSample}>
+              🧪 Load sample analysis
+            </button>
+          )}
+        </div>
+      )}
 
-          <button
-            className="btn"
-            onClick={() => setActiveTab('device')}
-            style={{
-              justifyContent: 'flex-start',
-              backgroundColor: activeTab === 'device' ? 'var(--bg-tertiary)' : 'transparent',
-              color: activeTab === 'device' ? 'var(--accent-blue)' : 'var(--text-primary)',
-              borderColor: activeTab === 'device' ? 'var(--accent-blue)' : 'transparent'
-            }}
-          >
-            📱 Device Manager
-          </button>
-
-          <button
-            className="btn"
-            onClick={() => setActiveTab('network')}
-            style={{
-              justifyContent: 'flex-start',
-              backgroundColor: activeTab === 'network' ? 'var(--bg-tertiary)' : 'transparent',
-              color: activeTab === 'network' ? 'var(--accent-blue)' : 'var(--text-primary)',
-              borderColor: activeTab === 'network' ? 'var(--accent-blue)' : 'transparent'
-            }}
-          >
-            🌐 Network Intercept
-          </button>
-
-          <button
-            className="btn"
-            onClick={() => setActiveTab('ai')}
-            style={{
-              justifyContent: 'flex-start',
-              backgroundColor: activeTab === 'ai' ? 'var(--bg-tertiary)' : 'transparent',
-              color: activeTab === 'ai' ? 'var(--accent-purple)' : 'var(--text-primary)',
-              borderColor: activeTab === 'ai' ? 'var(--accent-purple)' : 'transparent'
-            }}
-          >
-            🤖 AI Copilot & RAG
-          </button>
-
-          <button
-            className="btn"
-            onClick={() => setActiveTab('workflows')}
-            style={{
-              justifyContent: 'flex-start',
-              backgroundColor: activeTab === 'workflows' ? 'var(--bg-tertiary)' : 'transparent',
-              color: activeTab === 'workflows' ? 'var(--accent-blue)' : 'var(--text-primary)',
-              borderColor: activeTab === 'workflows' ? 'var(--accent-blue)' : 'transparent'
-            }}
-          >
-            🔄 Workflow DAG
-          </button>
-
-          <button
-            className="btn"
-            onClick={() => setActiveTab('deps')}
-            style={{
-              justifyContent: 'flex-start',
-              backgroundColor: activeTab === 'deps' ? 'var(--bg-tertiary)' : 'transparent',
-              color: activeTab === 'deps' ? 'var(--accent-blue)' : 'var(--text-primary)',
-              borderColor: activeTab === 'deps' ? 'var(--accent-blue)' : 'transparent'
-            }}
-          >
-            📦 Dependencies
-          </button>
-
-          <button
-            className="btn"
-            onClick={() => setActiveTab('report')}
-            style={{
-              justifyContent: 'flex-start',
-              backgroundColor: activeTab === 'report' ? 'var(--bg-tertiary)' : 'transparent',
-              color: activeTab === 'report' ? 'var(--accent-green)' : 'var(--text-primary)',
-              borderColor: activeTab === 'report' ? 'var(--accent-green)' : 'transparent'
-            }}
-          >
-            📊 Report Exporter
-          </button>
-        </nav>
-
-        {/* Workspace Dock Area */}
-        <main style={{ flex: 1, overflow: 'hidden' }}>
-          {activeTab === 'graph' && <GraphExplorer graph={graph} />}
-          {activeTab === 'editor' && <CodeEditor />}
-          {activeTab === 'device' && <DeviceManager />}
-          {activeTab === 'network' && <NetworkInspector />}
-          {activeTab === 'ai' && <AiCopilot graph={graph} />}
-          {activeTab === 'workflows' && <WorkflowBuilder graph={graph} />}
-          {activeTab === 'deps' && <DependencyManagerView />}
-          {activeTab === 'report' && <ReportViewer graph={graph} />}
-        </main>
-      </div>
-
-      {/* Footer Status Bar */}
       <footer
         style={{
           height: '24px',
@@ -216,12 +184,12 @@ export const App: React.FC = () => {
         }}
       >
         <div style={{ display: 'flex', gap: '16px' }}>
-          <span>Ready</span>
-          <span>SQLite Workspace: Active</span>
-          <span>Knowledge Graph: 4 Nodes, 3 Edges</span>
+          <span>{analysis ? `${analysis.graph.nodes.length} nodes · ${analysis.graph.edges.length} edges` : 'Ready'}</span>
+          {analysis && <span>{analysis.permissions.length} permissions</span>}
+          {analysis && <span>{analysis.decompiledJavaCount ?? 0} Java files</span>}
         </div>
         <div>
-          <span>OpenRev Platform • Apache-2.0</span>
+          <span>OpenRev • Apache-2.0</span>
         </div>
       </footer>
     </div>

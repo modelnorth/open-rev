@@ -102,7 +102,8 @@ Tools: `list_capabilities`, `check_dependencies`, `analyze_target`, `search_grap
 | AI copilot / RAG | **Experimental** — requires LLM provider; never faked |
 | Marketplace installer | **Experimental** — returns honest "not implemented" |
 | ELF provider | **Experimental** — real ELF header parse; no symbol extraction (use ghidra adapter) |
-| React UI (Vite) / Tauri desktop | **Experimental** — browser build cannot bundle `node:*` core modules |
+| React UI (Vite) | **Real** — browser-safe frontend, no `node:*` imports, builds clean, UI smoke tests pass (`npm run test:ui`) |
+| Tauri desktop | **Real (Windows verified)** — Rust command bridge (file dialog, analysis sidecar, error reporting); `cargo build --release` succeeds, app launches without startup crash. macOS/Linux pending CI |
 
 ## Documentation
 
