@@ -43,7 +43,9 @@ jobs:
           npm audit --omit=dev
 
       - name: CLI Smoke Test (real APK fixture)
-        run: node --import tsx bin/openrev.js analyze tests/fixtures/FixtureApp.apk --json | grep -q '"packageName": "com.example.two_rings"' && echo "CLI OK"
+        shell: bash
+        run: |
+          node --import tsx bin/openrev.js analyze tests/fixtures/FixtureApp.apk --json | grep -q 'com.example.two_rings' && echo "CLI OK"
 
       - name: MCP Server Smoke Test (initialize + analyze_target over stdio)
         shell: bash
