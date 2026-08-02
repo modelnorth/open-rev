@@ -1,6 +1,6 @@
 # OpenRev Known Limitations
 
-**Version**: `0.1.0-alpha.1` · **Updated**: 2026-08-02
+**Version**: `0.1.0-alpha.2` · **Updated**: 2026-08-02
 
 This document is the honest ledger of what OpenRev does **not** do yet, what is
 experimental, and what is blocked on this machine. Nothing here is hidden behind a
@@ -8,19 +8,32 @@ success claim.
 
 ---
 
-## 1. Blocked on this machine (gates G11–G15)
+## 1. Verified vs blocked (gates)
 
-These features are implemented with **real** adapters/paths, but the external
-prerequisite is absent locally, so the success path has not been end-to-end verified.
+### ✅ Verified on this machine (real execution)
+
+| Feature | Evidence |
+|---|---|
+| jadx decompilation (`provider.jadx`, `static.decompile`) | **Verified end-to-end** on `tests/fixtures/SampleApp.apk` (jadx 1.5.6): real `MainActivity.java` decompiled in ~1.8 s (`tests/integration/decompile.test.ts`) |
+| apktool decode (`provider.apktool`) | **Verified end-to-end** on SampleApp.apk (apktool 3.0.3): decoded manifest + `MainActivity.smali` + 11 real layout XMLs in ~1.2 s |
+| Full pipeline with real tools | `decompile` pipeline stage populates graph + real tool output (3.1 s) |
+| Executable auto-discovery + custom paths + version validation + checksum | Covered by `tests/adapters/adapters.test.ts` (probeTool custom path, `compareVersions`, `verifyChecksum`, version minimums) |
+| Windows `.bat`/`.cmd` execution | `runtime.ts` resolves batch files through `cmd.exe`; exercised by the decompile tests on Windows |
+
+### 🔴 Still blocked / pending
 
 | Feature | Prerequisite | Status here |
 |---|---|---|
-| jadx decompilation (`provider.jadx`, `static.decompile`) | `jadx` binary or Docker + `DOCKER_JADX_IMAGE` | `TOOL_NOT_FOUND` path tested; success path unverified |
-| apktool decode (`provider.apktool`) | `apktool` binary or Docker + `DOCKER_APKTOOL_IMAGE` | `TOOL_NOT_FOUND` path tested; success path unverified |
 | Ghidra headless symbols (`provider.ghidra`, `AnalyzeNative`) | `analyzeHeadless` on PATH | `TOOL_NOT_FOUND` path tested; success path unverified |
 | Device runtime (`provider.adb`, `device.inspect`) | connected Android device | `adb devices -l` path tested; 0 devices present, install/logcat/dumpsys unverified on a real device |
 | AI copilot / RAG | LLM provider (API key or local model) | experimental; never faked |
 | Cross-platform CI green | GitHub Actions run | pending (CI configured for ubuntu/windows/macos × Node 22/24) |
+
+> The decompile integration tests (`tests/integration/decompile.test.ts`) require
+> jadx + apktool. They auto-detect `OPENREV_JADX`/`OPENREV_APKTOOL` (or the tools on
+> PATH / a local `openrev-tools` dir) and **skip honestly** when absent — they never
+> fake success. Install jadx (https://github.com/skylot/jadx) and apktool
+> (https://apktool.org), or set the env vars, to run them.
 
 ## 2. Experimental areas (never claim as production)
 

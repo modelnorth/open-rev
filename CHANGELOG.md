@@ -80,6 +80,25 @@ blocked (see `docs/KNOWN_LIMITATIONS.md`).
 - CI now runs coverage + security audit; `npm ci` verified for clean clones.
 - Added `docs/release/V1_GATE_AUDIT.md` — honest scoring of every v1.0 gate criterion.
 
+### Production Android Provider (real decompile/decode success paths)
+
+- **Sample APK**: `tests/fixtures/SampleApp.apk` (76 KB) built from real bytes — real
+  `AndroidManifest.xml`, `resources.arsc`, 11 real `res/layout` XMLs, and a real
+  `classes14.dex` containing `com.example.two_rings.MainActivity` (the class the
+  manifest declares). jadx decompiles it in ~1.8 s; apktool decodes it in ~1.2 s.
+- **Hardened adapters** (`packages/adapters/runtime.ts`, jadx, apktool, adb):
+  auto-discovery (custom path → env var → PATH), executable version validation against
+  a minimum, optional SHA-256 binary verification, stdout/stderr/exit-code capture,
+  timeouts, cancellation, and Windows `.bat`/`.cmd` resolution via `cmd.exe`.
+- **Pipeline stage**: `AnalysisPipeline` gained an opt-in `decompile` stage that runs
+  real jadx + apktool and folds real output (decompiled Java count, decoded layout
+  XMLs) into the result. Disabled by default; enabled in integration tests.
+- **`tests/integration/decompile.test.ts`**: 4 tests that run the REAL tools against
+  SampleApp.apk — real `MainActivity.java`, real smali + decoded layouts, full pipeline
+  with tool output, and version-minimum validation. Tests skip honestly when tools are
+  absent.
+- **Test count 47 → 57**, all green; coverage 83.0% line.
+
 ### Known limitations
 
 See [`docs/KNOWN_LIMITATIONS.md`](docs/KNOWN_LIMITATIONS.md). In short: jadx/apktool/

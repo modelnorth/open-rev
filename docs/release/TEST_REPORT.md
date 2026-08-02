@@ -1,17 +1,62 @@
 # OpenRev Test Report
 
 **Generated**: 2026-08-02 · Node v24.18.0 · Windows
-**Command**: `npm test` (`node --import tsx --test --test-timeout=60000 tests/unit/core.test.ts tests/unit/cli.test.ts tests/adapters/adapters.test.ts tests/integration/pipeline.test.ts tests/mcp/mcp.test.ts`)
+**Command**: `npm test` (unit + CLI + adapters + integration + decompile + MCP)
 
 ## Result
 
 | | |
 | :--- | :--- |
-| **Tests** | **47** |
-| **Pass** | **47** |
+| **Tests** | **57** |
+| **Pass** | **57** |
 | **Fail** | **0** |
-| **Skipped / Todo** | 0 |
-| **Duration** | ~1.2 s |
+| **Skipped** | 0 (decompile suite runs because jadx + apktool are installed) |
+| **Duration** | ~9 s (includes real jadx + apktool runs) |
+
+## Test suites
+
+### `tests/unit/core.test.ts` — core engine, graph, security, SDK, platform APIs
+- SecuritySanitizer Path Traversal & Zip Slip prevention
+- ProductionAndroidProvider output normalization
+- OpenRevSDK high-level `analyzeTarget` (real pipeline)
+- Milestone 0 vertical slice (real pipeline)
+- ArtifactKnowledgeGraph node/edge management
+- ExtensionHostManager, RemoteExecutionGateway, KnowledgeGraphQueryAPI,
+  WorkspaceSnapshotEngine, DependencyRegistry (real PATH probes)
+
+### `tests/unit/cli.test.ts` — CLI exit codes + real commands
+- `version` prints `0.1.0-alpha.2` (0), `help` (0), unknown command (2),
+  `analyze` without target (2), missing file → 1 + `FILE_NOT_FOUND`
+- `analyze`/`graph`/`search`/`report`/`workflow`/`deps` on real fixture data
+
+### `tests/adapters/adapters.test.ts` — real tool adapters + runtime
+- JADX/Apktool/Frida/Ghidra probe honestly; `TOOL_NOT_FOUND` when absent
+- ADB lists real devices
+- `runCommand` output/timeout; `probeTool` detects node
+- **New**: `compareVersions`, version-minimum validation, custom executable path
+  resolution, missing-path not found, `verifyChecksum` match/mismatch, JADX custom
+  path + version validated
+
+### `tests/integration/pipeline.test.ts` — real end-to-end pipeline
+- Fixture → real manifest decode, graph, SQLite persistence, search, FILE_NOT_FOUND
+
+### `tests/integration/decompile.test.ts` — REAL external-tool success paths
+Requires jadx + apktool (auto-detected; skips honestly when absent).
+- jadx decompiles SampleApp.apk → real `MainActivity.java` (≈1.8 s)
+- apktool decodes SampleApp.apk → manifest + smali + 11 real layout XMLs (≈1.2 s)
+- Full pipeline with `decompile.enabled` → graph populated + real tool output
+- Tool versions meet minimums
+
+### `tests/mcp/mcp.test.ts` — real MCP client over in-memory transport
+- `tools/list` schemas; analyze/query/report/provider; typed `FILE_NOT_FOUND`
+
+## What the tests do NOT cover (honesty)
+
+- Ghidra success path (analyzeHeadless not installed) — `TOOL_NOT_FOUND` only.
+- Real device interaction (no device attached).
+- AI/RAG (no LLM provider).
+- Browser UI / Tauri (experimental).
+- Decompile tests skip (do not run) on machines without jadx/apktool — they never fake success.
 
 ## Test suites & coverage areas
 

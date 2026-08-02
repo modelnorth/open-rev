@@ -29,12 +29,25 @@ export class AdbAdapter {
   public static readonly minVersion = '1.0.41';
 
   private cachedProbe: ToolProbeResult | null = null;
+  private readonly customPath: string | undefined;
+
+  constructor(customPath?: string) {
+    this.customPath = customPath ?? process.env.OPENREV_ADB;
+  }
 
   public async isAvailable(): Promise<ToolProbeResult> {
     if (!this.cachedProbe) {
-      this.cachedProbe = await probeTool('adb', ['--version']);
+      this.cachedProbe = await probeTool('adb', ['--version'], undefined, AdbAdapter.minVersion, this.customPath);
     }
     return this.cachedProbe;
+  }
+
+  public get executablePath(): string | undefined {
+    return this.customPath ?? 'adb';
+  }
+
+  private adbCommand(): string {
+    return this.customPath ?? 'adb';
   }
 
   public async listDevices(): Promise<AdapterResponse<AdbDeviceInfo[]>> {
@@ -50,10 +63,20 @@ export class AdbAdapter {
         })
       };
     }
+    if (probe.version && probe.versionOk === false) {
+      return {
+        ok: false,
+        error: new OpenRevError({
+          code: 'TOOL_EXECUTION_FAILED',
+          message: `adb version ${probe.version} is older than required minimum ${AdbAdapter.minVersion}.`,
+          remediation: 'Upgrade Android SDK platform-tools.'
+        })
+      };
+    }
 
     const start = Date.now();
     try {
-      const out = await runChecked('adb', { args: ['devices', '-l'] });
+      const out = await runChecked(this.adbCommand(), { args: ['devices', '-l'] });
       const lines = out.split(/\r?\n/).filter((l) => l.trim().length > 0 && !l.startsWith('List of devices'));
       const devices: AdbDeviceInfo[] = lines.map((line) => {
         const parts = line.split(/\s+/);
@@ -120,7 +143,7 @@ export class AdbAdapter {
 
     try {
       const args = ['-s', targetSerial, 'install', '-r', apkPath];
-      const out = await runChecked('adb', { args, timeoutMs: 300_000 });
+      const out = await runChecked(this.adbCommand(), { args, timeoutMs: 300_000 });
       return {
         ok: true,
         value: { success: true, serial: targetSerial },
@@ -154,7 +177,7 @@ export class AdbAdapter {
       ? ['-s', serial, 'shell', 'dumpsys', 'package', packageName]
       : ['shell', 'dumpsys', 'package', packageName];
     try {
-      const out = await runChecked('adb', { args, timeoutMs: 60_000 });
+      const out = await runChecked(this.adbCommand(), { args, timeoutMs: 60_000 });
       return { ok: true, value: out, source: 'native', elapsedMs: 0 };
     } catch (err) {
       return {
@@ -178,7 +201,7 @@ export class AdbAdapter {
       : ['logcat', '-v', 'threadtime'];
     let child: ChildProcessWithoutNullStreams;
     try {
-      child = spawn('adb', args, { windowsHide: true });
+      child = spawn(this.adbCommand(), args, { windowsHide: true });
     } catch {
       return undefined;
     }

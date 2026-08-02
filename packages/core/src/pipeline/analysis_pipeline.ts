@@ -9,6 +9,8 @@
  */
 
 import { AndroidProvider, type AndroidAnalysisResult } from '../../../providers/android/src/index.ts';
+import { JadxAdapter } from '../../../adapters/jadx/index.ts';
+import { ApktoolAdapter } from '../../../adapters/apktool/index.ts';
 import { ArtifactStore } from '../artifacts/artifact_store.ts';
 import { SQLiteWorkspace } from '../db/sqlite_workspace.ts';
 import { ArtifactKnowledgeGraph, type GraphNode, type GraphEdge } from '../graph/knowledge_graph.ts';
@@ -20,6 +22,17 @@ export interface PipelineOptions {
   workspaceDbPath?: string;
   artifactsDir?: string;
   storeArtifacts?: boolean;
+  /**
+   * Opt-in decompile + resource-decode stage using real external tools
+   * (jadx / apktool). When disabled (default) the pipeline still performs real
+   * manifest analysis. When enabled, the real tools must be available.
+   */
+  decompile?: {
+    enabled?: boolean;
+    jadxExecutable?: string;
+    apktoolExecutable?: string;
+    outputDir?: string;
+  };
 }
 
 export interface PipelineResult {
@@ -31,6 +44,10 @@ export interface PipelineResult {
   searchResultCount: number;
   reportMarkdown: string;
   workspace: { dbPath: string; recordId: string };
+  decompiledJavaCount?: number;
+  decodedLayoutFiles?: string[];
+  decompileSource?: 'native' | 'docker';
+  decompileNote?: string;
   elapsedMs: number;
 }
 
@@ -50,7 +67,7 @@ export class AnalysisPipeline {
 
   public async run(filePath: string): Promise<PipelineResult> {
     const { readFile, stat } = await import('node:fs/promises');
-    const { basename } = await import('node:path');
+    const { basename, join } = await import('node:path');
     const { createHash } = await import('node:crypto');
 
     const start = Date.now();
@@ -89,6 +106,41 @@ export class AnalysisPipeline {
     // 2. Real decode + extract
     const analysis = await AndroidProvider.analyze(data, fileName);
 
+    // 2b. Optional decompile + resource decode via real external tools (jadx/apktool)
+    let decompiledJavaCount: number | undefined;
+    let decodedLayoutFiles: string[] | undefined;
+    let decompileSource: 'native' | 'docker' | undefined;
+    let decompileNote: string | undefined;
+    if (this.options.decompile?.enabled) {
+      const workDir = this.options.decompile.outputDir ?? join('.openrev', 'work');
+      const jadx = new JadxAdapter();
+      const jadxRes = await jadx.decompile(filePath, {
+        decompileCode: true,
+        exportResources: true,
+        outputDir: workDir,
+        executablePath: this.options.decompile.jadxExecutable
+      });
+      if (jadxRes.ok) {
+        decompiledJavaCount = jadxRes.value.javaSourcesCount ?? 0;
+        decompileSource = jadxRes.value.source;
+      } else {
+        decompileNote = jadxRes.error.message;
+      }
+
+      const apktool = new ApktoolAdapter();
+      const aptRes = await apktool.decode(filePath, workDir, {
+        executablePath: this.options.decompile.apktoolExecutable
+      });
+      if (aptRes.ok) {
+        decodedLayoutFiles = await collectDecodedLayouts(aptRes.value.outputDir);
+        if (jadxRes.ok) {
+          decompileSource = aptRes.value.source === 'docker' ? 'docker' : decompileSource;
+        }
+      } else if (!decompileNote) {
+        decompileNote = aptRes.error.message;
+      }
+    }
+
     // 3. Knowledge graph
     const graph = new ArtifactKnowledgeGraph();
     const provider = new AndroidProvider();
@@ -100,7 +152,7 @@ export class AnalysisPipeline {
       graph.addEdge({ id: e.id, source: e.source, target: e.target, relationship: e.relationship as GraphEdge['relationship'] });
     }
 
-    // 4. Search index (real content derived from the parsed manifest)
+    // 4. Search index (real content derived from the parsed manifest + real tool output)
     const indexer = new SearchIndexer();
     indexer.addDocument({
       id: `manifest_${hash.slice(0, 8)}`,
@@ -127,7 +179,8 @@ export class AnalysisPipeline {
         filePath: `smali/classes/${act}.smali`
       });
     });
-    analysis.layoutFiles.forEach((layout, i) => {
+    const layoutFiles = decodedLayoutFiles?.length ? decodedLayoutFiles : analysis.layoutFiles;
+    layoutFiles.forEach((layout, i) => {
       indexer.addDocument({
         id: `layout_${hash.slice(0, 8)}_${i}`,
         category: 'resource',
@@ -192,6 +245,10 @@ export class AnalysisPipeline {
       searchResultCount: docs.length,
       reportMarkdown,
       workspace: { dbPath: this.workspace.dbPathDisplay(), recordId },
+      decompiledJavaCount,
+      decodedLayoutFiles,
+      decompileSource,
+      decompileNote,
       elapsedMs: Date.now() - start
     };
   }
@@ -203,4 +260,25 @@ function shortName(fqcn: string): string {
 
 function basenamePath(p: string): string {
   return p.split('/').pop() || p;
+}
+
+async function collectDecodedLayouts(apktoolDir: string): Promise<string[]> {
+  const { readdirSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  const found: string[] = [];
+  const walk = (d: string): void => {
+    let entries;
+    try {
+      entries = readdirSync(d, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      const p = join(d, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (e.name.endsWith('.xml') && /[\\/]res[\\/]layout/.test(p)) found.push(p);
+    }
+  };
+  walk(apktoolDir);
+  return found.sort();
 }

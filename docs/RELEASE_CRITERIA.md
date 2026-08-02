@@ -20,7 +20,7 @@ Gates are evaluated by `scripts/` and the CI workflow `.github/workflows/ci.yml`
 | G8 | No Zip Slip / path traversal in archive handling | SecuritySanitizer test + zip_reader tests | ✅ passes |
 | G9 | External tool adapters never fabricate output | adapter tests assert honest TOOL_NOT_FOUND when tools absent | ✅ passes |
 | G10 | Performance measured on real artifacts | `scripts/benchmark.mjs` → `docs/BENCHMARKS.md` | ✅ measured |
-| G11 | Decompile (jadx/apktool) verified end-to-end | requires jadx/apktool/docker installed | 🔴 BLOCKED (tools absent locally; adapter TOOL_NOT_FOUND path verified only) |
+| G11 | Decompile (jadx/apktool) verified end-to-end | `tests/integration/decompile.test.ts` on `tests/fixtures/SampleApp.apk` (jadx 1.5.6 → real Java; apktool 3.0.3 → real smali/layouts) | ✅ passes on this machine (skips honestly when tools absent) |
 | G12 | Ghidra headless (analyzeHeadless) verified | requires Ghidra installed | 🔴 BLOCKED (absent locally) |
 | G13 | Device runtime verified against a real Android device | requires connected device | 🔴 BLOCKED (0 devices; `adb devices -l` path verified only) |
 | G14 | AI/RAG capabilities verified | requires LLM provider keys | 🔴 BLOCKED (marked experimental, never faked) |
@@ -31,8 +31,8 @@ Gates are evaluated by `scripts/` and the CI workflow `.github/workflows/ci.yml`
 
 ## Honest status summary
 
-- **Verified now (this machine)**: G1–G10.
-- **Blocked on this machine (documented, not faked)**: G11–G15.
+- **Verified now (this machine)**: G1–G11 (jadx + apktool success paths now verified).
+- **Blocked on this machine (documented, not faked)**: G12 (ghidra), G13 (device), G14 (AI), G15 (desktop).
 - **Pending external verification**: G16 (requires a GitHub Actions run).
 
 A release can proceed with G1–G10 green and all BLOCKED gates documented in

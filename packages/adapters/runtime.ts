@@ -2,16 +2,20 @@
  * OpenRev Tool Adapter Runtime
  *
  * Shared process execution layer for external tool adapters (jadx, apktool,
- * adb, frida, ghidra). Handles binary detection, version probing, spawning,
- * timeouts, cancellation, Docker fallback, and typed OpenRev errors.
+ * adb, frida, ghidra). Handles binary detection (custom path or PATH),
+ * version probing + validation, optional checksum verification, spawning,
+ * timeouts, cancellation, Windows batch (.bat/.cmd) resolution, Docker
+ * fallback, and typed OpenRev errors.
  *
  * All execution is REAL: adapters never fabricate output. When a tool is not
- * present on PATH, adapters attempt a Docker fallback and otherwise raise
+ * present, adapters attempt a Docker fallback and otherwise raise
  * TOOL_NOT_FOUND.
  */
 
 import { execFile as execFileCb, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
+import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { OpenRevError, OpenRevErrorCode } from '../core/src/errors/openrev_error.ts';
 
 const execFileAsync = promisify(execFileCb);
@@ -45,6 +49,24 @@ export interface ProcessResult {
   code: number | null;
 }
 
+function quoteWinArg(a: string): string {
+  if (a.length === 0) return '""';
+  if (/[\s"]/.test(a) && !a.startsWith('"')) return `"${a.replace(/"/g, '\\"')}"`;
+  return a;
+}
+
+/**
+ * On Windows, .bat/.cmd files cannot be spawned directly (EINVAL). Resolve them
+ * through cmd.exe. Returns null for non-batch commands.
+ */
+function winBatchResolve(command: string, args: string[]): { command: string; args: string[] } | null {
+  if (process.platform !== 'win32') return null;
+  const lower = command.toLowerCase();
+  if (!lower.endsWith('.bat') && !lower.endsWith('.cmd')) return null;
+  const cmdline = [quoteWinArg(command), ...args.map(quoteWinArg)].join(' ');
+  return { command: 'cmd.exe', args: ['/d', '/s', '/c', cmdline] };
+}
+
 /**
  * Run an external command. Returns raw output; never fabricates.
  */
@@ -58,8 +80,12 @@ export async function runCommand(command: string, options: ProcessOptions): Prom
     env
   } = options;
 
+  const resolved = winBatchResolve(command, args);
+  const cmd = resolved?.command ?? command;
+  const cmdArgs = resolved?.args ?? args;
+
   return new Promise<ProcessResult>((resolve, reject) => {
-    const child = spawn(command, args, {
+    const child = spawn(cmd, cmdArgs, {
       cwd,
       windowsHide: true,
       env: { ...process.env, ...env },
@@ -170,7 +196,9 @@ export async function runChecked(
 
 export interface ToolProbeResult {
   found: boolean;
+  executablePath?: string;
   version?: string;
+  versionOk?: boolean;
   dockerAvailable: boolean;
   dockerImage?: string;
 }
@@ -178,13 +206,15 @@ export interface ToolProbeResult {
 const VERSION_PATTERN = /(\d+\.\d+(?:\.\d+)?(?:-[0-9A-Za-z.-]+)?)/;
 
 /**
- * Probe whether a tool exists on PATH and whether Docker is available.
- * Never blocks longer than timeoutMs on either.
+ * Probe whether a tool exists at a custom path or on PATH, parse its version,
+ * and validate it against a minimum. Never blocks longer than timeoutMs.
  */
 export async function probeTool(
   command: string,
   versionFlags: string[],
   dockerImage?: string,
+  minVersion?: string,
+  customPath?: string,
   timeoutMs = 8000
 ): Promise<ToolProbeResult> {
   const result: ToolProbeResult = {
@@ -193,18 +223,32 @@ export async function probeTool(
     dockerImage
   };
 
-  try {
-    const { stdout, stderr } = await execFileAsync(command, versionFlags, {
-      timeout: timeoutMs,
-      windowsHide: true
-    });
-    result.found = true;
-    const combined = `${stdout}\n${stderr}`;
-    const match = combined.match(VERSION_PATTERN);
-    if (match) result.version = match[1];
-    return result;
-  } catch {
-    // fall through to docker probe
+  const candidates = [customPath, command].filter(Boolean) as string[];
+
+  for (const candidate of candidates) {
+    try {
+      const resolved = winBatchResolve(candidate, versionFlags);
+      const exec = resolved?.command ?? candidate;
+      const execArgs = resolved?.args ?? versionFlags;
+      const { stdout, stderr } = await execFileAsync(exec, execArgs, {
+        timeout: timeoutMs,
+        windowsHide: true,
+        env: process.env
+      });
+      result.found = true;
+      result.executablePath = candidate;
+      const combined = `${stdout}\n${stderr}`;
+      const match = combined.match(VERSION_PATTERN);
+      if (match) {
+        result.version = match[1];
+        if (minVersion) {
+          result.versionOk = compareVersions(result.version, minVersion) >= 0;
+        }
+      }
+      return result;
+    } catch {
+      // try next candidate
+    }
   }
 
   if (dockerImage) {
@@ -220,6 +264,32 @@ export async function probeTool(
   }
 
   return result;
+}
+
+/**
+ * Compare two dotted numeric version strings. Returns -1/0/1. Non-numeric
+ * segments are compared lexically. Missing parts default to 0.
+ */
+export function compareVersions(a: string, b: string): number {
+  const pa = (a || '').split(/[.+-]/).map((s) => (/^\d+$/.test(s) ? Number(s) : NaN));
+  const pb = (b || '').split(/[.+-]/).map((s) => (/^\d+$/.test(s) ? Number(s) : NaN));
+  const len = Math.max(pa.length, pb.length);
+  for (let i = 0; i < len; i++) {
+    const va = pa[i] ?? 0;
+    const vb = pb[i] ?? 0;
+    if (va > vb) return 1;
+    if (va < vb) return -1;
+  }
+  return 0;
+}
+
+/**
+ * Verify the SHA-256 of a binary on disk. Returns true when it matches.
+ */
+export async function verifyChecksum(filePath: string, expectedSha256: string): Promise<boolean> {
+  const data = await readFile(filePath);
+  const actual = createHash('sha256').update(data).digest('hex');
+  return actual.toLowerCase() === expectedSha256.toLowerCase();
 }
 
 /**

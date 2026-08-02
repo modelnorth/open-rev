@@ -22,8 +22,8 @@ Verdict legend: ✅ = verified with real execution on this machine · ⚠️ = p
 | Criterion | Status | Evidence |
 |---|---|---|
 | Import a real APK | ✅ | Verified on 178 MB APK + fixture; `analyze` test |
-| Run real JADX | 🔴 | jadx absent locally; adapter returns honest `TOOL_NOT_FOUND`; success path unverified (G11) |
-| Run real Apktool | 🔴 | apktool absent; same as above (G11) |
+| Run real JADX | ✅ | Verified end-to-end on SampleApp.apk: real `MainActivity.java` decompiled (~1.8 s); success-path test in `tests/integration/decompile.test.ts` |
+| Run real Apktool | ✅ | Verified end-to-end on SampleApp.apk: manifest + smali + 11 real layouts decoded (~1.2 s) |
 | Decode AndroidManifest.xml | ✅ | Real binary AXML decoder; 97.8% covered; verified on real APK |
 | Extract layouts/resources | ✅ | Layout/resource inventory extracted from real entries |
 | Populate the Knowledge Graph | ✅ | 33 nodes/32 edges from fixture; validation passes |
@@ -127,7 +127,7 @@ Verdict legend: ✅ = verified with real execution on this machine · ⚠️ = p
 | Category | ✅ | ⚠️ | 🔴 / ⏳ |
 |---|---|---|---|
 | Engineering | 4 | 1 | 0 |
-| Functionality | 6 | 0 | 2 |
+| Functionality | 8 | 0 | 0 |
 | Desktop | 0 | 0 | 5 |
 | CLI | 3 | 1 | 0 |
 | MCP | 2 | 1 | 0 |
@@ -138,10 +138,13 @@ Verdict legend: ✅ = verified with real execution on this machine · ⚠️ = p
 | Security | 2 | 0 | 2 |
 | Release quality | 4 | 0 | 1 |
 
-**Verdict: NOT v1.0-ready.** The core product (pipeline, CLI, MCP, testing, docs, perf) is real and verified. The blockers for `v1.0.0` are the **Desktop** (5 🔴), **JADX/Apktool success paths** (2 🔴), **UI tests**, **CI run**, **sandboxing/permissions**, and **signed artifacts**.
+**Verdict: NOT v1.0-ready.** The core product (pipeline, CLI, MCP, decompile/decode
+success paths, testing, docs, perf) is real and verified. The remaining blockers for
+`v1.0.0` are the **Desktop** (5 🔴), **UI tests**, **CI run**, **sandboxing/permissions**,
+and **signed artifacts**.
 
 ### Recommended path to v1.0.0-rc.1
-1. Install jadx + apktool (or Docker) and add **success-path** integration tests.
+1. ✅ jadx + apktool success paths — **done** (`tests/integration/decompile.test.ts`, SampleApp.apk).
 2. Fix or drop the desktop/UI claim (currently experimental, does not build).
 3. Run the 3-OS CI matrix on GitHub and fix any failures.
 4. Add a runtime sandbox + plugin permission enforcement, or explicitly scope them out of v1.0.

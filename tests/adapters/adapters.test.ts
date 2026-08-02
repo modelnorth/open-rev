@@ -5,8 +5,10 @@ import { ApktoolAdapter } from '../../packages/adapters/apktool/index.ts';
 import { AdbAdapter } from '../../packages/adapters/adb/index.ts';
 import { FridaAdapter } from '../../packages/adapters/frida/index.ts';
 import { GhidraAdapter } from '../../packages/adapters/ghidra/index.ts';
-import { runCommand, probeTool } from '../../packages/adapters/runtime.ts';
+import { runCommand, probeTool, compareVersions, verifyChecksum } from '../../packages/adapters/runtime.ts';
 import { OpenRevErrorCode } from '../../packages/core/src/errors/openrev_error.ts';
+import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 
 test('JADX Adapter probes availability honestly', async () => {
   const adapter = new JadxAdapter();
@@ -119,4 +121,53 @@ test('runCommand times out on a blocking process', async () => {
 test('probeTool detects node itself', async () => {
   const res = await probeTool(process.execPath, ['--version']);
   assert.strictEqual(res.found, true);
+});
+
+test('compareVersions orders dotted versions', () => {
+  assert.strictEqual(compareVersions('1.4.7', '1.4.7'), 0);
+  assert.strictEqual(compareVersions('1.5.6', '1.4.7'), 1);
+  assert.strictEqual(compareVersions('1.4.6', '1.4.7'), -1);
+  assert.strictEqual(compareVersions('2.0.0', '1.99.99'), 1);
+  assert.strictEqual(compareVersions('1.4.7', '1.4'), 1);
+});
+
+test('probeTool validates version against a minimum', async () => {
+  const res = await probeTool(process.execPath, ['--version'], undefined, '99.0.0');
+  if (res.found) {
+    assert.strictEqual(res.versionOk, false);
+  }
+  const ok = await probeTool(process.execPath, ['--version'], undefined, '1.0.0');
+  if (ok.found) {
+    assert.strictEqual(ok.versionOk, true);
+  }
+});
+
+test('probeTool with a custom path resolves and reports executablePath', async () => {
+  const res = await probeTool('does-not-exist', ['--version'], undefined, undefined, process.execPath);
+  assert.strictEqual(res.found, true);
+  assert.strictEqual(res.executablePath, process.execPath);
+});
+
+test('probeTool with a missing custom path is not found', async () => {
+  const res = await probeTool('anything', ['--version'], undefined, undefined, 'C:/definitely/not/here/tool');
+  assert.strictEqual(res.found, false);
+});
+
+test('verifyChecksum matches real file SHA-256', async () => {
+  const data = await readFile(process.execPath);
+  const expected = createHash('sha256').update(data).digest('hex');
+  assert.strictEqual(await verifyChecksum(process.execPath, expected), true);
+  assert.strictEqual(await verifyChecksum(process.execPath, 'deadbeef'.repeat(8)), false);
+});
+
+test('JADX custom executable path is honored and version validated', async () => {
+  const custom = process.env.OPENREV_JADX;
+  const adapter = new JadxAdapter();
+  const probe = await adapter.isAvailable(custom);
+  // If a custom tool is configured, it must resolve and validate.
+  if (custom || probe.found) {
+    assert.strictEqual(probe.found, true);
+    assert.ok(probe.version, 'expected a parsed version');
+    if (probe.version) assert.strictEqual(probe.versionOk, true);
+  }
 });

@@ -7,7 +7,7 @@ adapter/plugin ecosystem in a local-first, offline-capable toolchain.
 
 > **Status: Alpha.** The core analysis pipeline, binary format decoders, SQLite
 > workspace, adapters, CLI, and MCP server are **real** — every stage is backed by real
-> file bytes with no fabricated output (47 tests green, full typecheck, measured
+> file bytes with no fabricated output (57 tests green, full typecheck, measured
 > coverage ~85% line). External tools (jadx, apktool, ghidra, …) are probed honestly and
 > report `TOOL_NOT_FOUND` when absent. The AI/RAG copilot, marketplace installer, and
 > desktop UI are **experimental** — see [Maturity](#maturity).
@@ -52,7 +52,7 @@ adapter/plugin ecosystem in a local-first, offline-capable toolchain.
 ```bash
 npm install
 npm run typecheck  # typecheck ALL workspaces
-npm test           # unit + CLI + adapters + integration + MCP (47 tests)
+npm test           # unit + CLI + adapters + integration + decompile + MCP (57 tests)
 npm run test:coverage
 npm run build      # typecheck (the repo is noEmit; UI browser build is experimental)
 ```
@@ -97,7 +97,7 @@ Tools: `list_capabilities`, `check_dependencies`, `analyze_target`, `search_grap
 | SQLite workspace persistence | **Real** (`node:sqlite`) |
 | Analysis pipeline (hash → decode → graph → index → SQLite → report) | **Real** |
 | Search engine | **Real** (inverted index + IDF scoring, `regex:` mode) |
-| Adapters (jadx/apktool/adb/frida/ghidra) | **Real probes & execution**; decompile success paths require the tools installed (honest `TOOL_NOT_FOUND` otherwise) |
+| Adapters (jadx/apktool/adb/frida/ghidra) | **Real probes & execution**; decompile success paths verified on `tests/fixtures/SampleApp.apk` (jadx + apktool; honest `TOOL_NOT_FOUND`/skip otherwise) |
 | CLI + MCP server | **Real** (verified end-to-end) |
 | AI copilot / RAG | **Experimental** — requires LLM provider; never faked |
 | Marketplace installer | **Experimental** — returns honest "not implemented" |
