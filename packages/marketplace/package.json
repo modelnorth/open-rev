@@ -4,7 +4,7 @@
   "description": "Plugin Marketplace Registry, Installer, and Updater for OpenRev",
   "main": "dist/index.js",
   "dependencies": {
-    "@openrev/plugin-sdk": "workspace:*"
+    "@openrev/plugin-sdk": "file:../plugin-sdk"
   },
   "license": "Apache-2.0"
 }

@@ -9,8 +9,8 @@
     "build": "tauri build"
   },
   "dependencies": {
-    "@openrev/ui": "workspace:*",
-    "@openrev/core": "workspace:*"
+    "@openrev/ui": "file:../ui",
+    "@openrev/core": "file:../core"
   },
   "license": "Apache-2.0"
 }

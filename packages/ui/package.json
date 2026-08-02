@@ -5,8 +5,8 @@
   "description": "Dockable Multi-Panel UI for OpenRev Platform",
   "main": "src/App.tsx",
   "dependencies": {
-    "@openrev/core": "workspace:*",
-    "@openrev/plugin-sdk": "workspace:*"
+    "@openrev/core": "file:../core",
+    "@openrev/plugin-sdk": "file:../plugin-sdk"
   },
   "scripts": {
     "dev": "vite",

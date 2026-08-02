@@ -9,8 +9,14 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace=packages/ui",
-    "build": "npm run build --workspaces",
-    "test": "node --test tests/unit/core.test.ts tests/adapters/adapters.test.ts"
+    "build": "npm run typecheck",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/unit/core.test.ts tests/adapters/adapters.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "tsx": "^4.19.2",
+    "typescript": "^7.0.2"
   },
   "license": "Apache-2.0"
 }

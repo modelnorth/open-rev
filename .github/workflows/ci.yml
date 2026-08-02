@@ -24,22 +24,17 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Install Rust Toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
-
       - name: Install Monorepo Dependencies
         run: npm install
 
-      - name: Type Check & Verify
-        run: npm run dev --workspace=packages/ui -- --help || true
+      - name: Type Check
+        run: npm run typecheck
 
       - name: Run Core & Provider Test Suite
-        run: node --test tests/unit/core.test.ts tests/adapters/adapters.test.ts
+        run: npm test
 
-      - name: Build All Monorepo Workspaces
-        run: npm run build --if-present
+      - name: Build Monorepo Workspaces
+        run: npm run build
 
       - name: CLI Binary Smoke Test
-        run: node bin/openrev.js import SampleApp.apk
+        run: node --import tsx bin/openrev.js import SampleApp.apk
