@@ -12,8 +12,8 @@
     "build": "npm run typecheck",
     "build:ui": "npm run build --workspace=@openrev/ui",
     "typecheck": "tsc --noEmit && npm run typecheck --workspace=@openrev/ui",
-    "test": "node --import tsx --test --test-timeout=60000 tests/unit/core.test.ts tests/adapters/adapters.test.ts tests/integration/pipeline.test.ts",
-    "test:coverage": "node --import tsx --test --experimental-test-coverage --test-timeout=60000 tests/unit/core.test.ts tests/adapters/adapters.test.ts tests/integration/pipeline.test.ts",
+    "test": "node --import tsx --test --test-timeout=60000 tests/unit/core.test.ts tests/unit/cli.test.ts tests/adapters/adapters.test.ts tests/integration/pipeline.test.ts tests/mcp/mcp.test.ts",
+    "test:coverage": "node --import tsx --test --experimental-test-coverage --test-timeout=60000 tests/unit/core.test.ts tests/unit/cli.test.ts tests/adapters/adapters.test.ts tests/integration/pipeline.test.ts tests/mcp/mcp.test.ts",
     "cli": "node --import tsx bin/openrev.js",
     "mcp": "node --import tsx packages/mcp-server/src/index.ts"
   },

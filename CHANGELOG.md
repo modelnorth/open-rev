@@ -68,6 +68,17 @@ blocked (see `docs/KNOWN_LIMITATIONS.md`).
 - MCP stdout pollution from library `console.log` (protocol corruption).
 - CI referenced nonexistent `SampleApp.apk`.
 - CI Node 18/20 matrix (incompatible with `node:sqlite`; now 22/24).
+- MCP tool handlers now map typed `OpenRevError` (code + remediation) into `isError`
+  results instead of losing the code in the generic SDK error.
+
+### Testing (expanded 29 → 47)
+
+- `tests/unit/cli.test.ts` — 11 real CLI tests (exit codes 0/1/2, real pipeline output,
+  honest workflow steps, deps).
+- `tests/mcp/mcp.test.ts` — 7 real MCP tests via the SDK `Client` over an in-memory
+  transport (`tools/list` schemas, analyze/query/report/provider, typed errors).
+- CI now runs coverage + security audit; `npm ci` verified for clean clones.
+- Added `docs/release/V1_GATE_AUDIT.md` — honest scoring of every v1.0 gate criterion.
 
 ### Known limitations
 

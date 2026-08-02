@@ -36,7 +36,7 @@ This repo is a **TypeScript monorepo** that runs TypeScript **directly from sour
 ```bash
 npm install        # install all workspaces (uses package-lock.json)
 npm run typecheck  # tsc --noEmit for ALL packages (core, sdk, ui, ui-sdk, mcp-server, ...)
-npm test           # 29 unit + adapter + integration tests via node:test + tsx
+npm test           # 47 unit + CLI + adapter + integration + MCP tests via node:test + tsx
 npm run test:coverage   # same + Node native coverage report
 npm run build      # typecheck only (the repo is noEmit; UI browser build is experimental)
 npm run cli -- <cmd>   # CLI (see below)

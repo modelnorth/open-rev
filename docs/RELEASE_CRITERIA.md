@@ -11,7 +11,7 @@ Gates are evaluated by `scripts/` and the CI workflow `.github/workflows/ci.yml`
 | # | Gate | How it is verified | Status |
 | :-: | :--- | :--- | :---: |
 | G1 | `tsc --noEmit` typechecks the entire monorepo | `npm run typecheck` | ✅ passes |
-| G2 | Full test suite passes (unit + adapters + integration) | `npm test` (29 tests) | ✅ passes |
+| G2 | Full test suite passes (unit + CLI + adapters + integration + MCP) | `npm test` (47 tests) | ✅ passes |
 | G3 | Test coverage is measured and reported | `npm run test:coverage` → `docs/release/COVERAGE_REPORT.md` | ✅ measured (85.2% line / 74.9% branch) |
 | G4 | CLI runs the real pipeline on a real APK fixture | `node --import tsx bin/openrev.js analyze tests/fixtures/FixtureApp.apk --json` | ✅ passes |
 | G5 | MCP server completes initialize + `analyze_target` over stdio | CI MCP smoke step | ✅ passes |

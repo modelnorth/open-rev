@@ -45,6 +45,30 @@ Exposes reverse-engineering capabilities over MCP. Call tools such as
 to run static analysis on a target file, "check_dependencies" to verify
 external tools, or "generate_report" to export an analysis report.`;
 
+function errorResult(err: unknown): { isError: true; content: Array<{ type: 'text'; text: string }> } {
+  if (err instanceof Error) {
+    const anyErr = err as any;
+    return {
+      isError: true,
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              error: err.message,
+              code: typeof anyErr.code === 'string' ? anyErr.code : undefined,
+              remediation: typeof anyErr.remediation === 'string' ? anyErr.remediation : undefined
+            },
+            null,
+            2
+          )
+        }
+      ]
+    };
+  }
+  return { isError: true, content: [{ type: 'text', text: JSON.stringify({ error: String(err) }) }] };
+}
+
 export class OpenRevMcpServer {
   private server: McpServer;
   private registry: DependencyRegistry;
@@ -123,42 +147,46 @@ export class OpenRevMcpServer {
         }
       },
       async ({ targetPath }) => {
-        const capEngine = new CapabilityEngine(this.registry, this.graph);
-        const staticRes = await capEngine.executeCapability('static.analyze_apk', { targetPath });
-        this.queryApi.setGraph(this.graph);
-        if (staticRes.report) {
-          this.search.addDocument({
-            id: `doc_${Date.now()}`,
-            category: 'report',
-            title: `Analysis of ${targetPath}`,
-            content: staticRes.report
-          });
+        try {
+          const capEngine = new CapabilityEngine(this.registry, this.graph);
+          const staticRes = await capEngine.executeCapability('static.analyze_apk', { targetPath });
+          this.queryApi.setGraph(this.graph);
+          if (staticRes.report) {
+            this.search.addDocument({
+              id: `doc_${Date.now()}`,
+              category: 'report',
+              title: `Analysis of ${targetPath}`,
+              content: staticRes.report
+            });
+          }
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  {
+                    success: staticRes.success,
+                    capabilityId: staticRes.capabilityId,
+                    toolUsed: staticRes.toolUsed,
+                    outputSummary: staticRes.outputSummary,
+                    artifactsProduced: staticRes.artifactsProduced,
+                    graphNodes: this.graph.getAllNodes().map((n) => ({
+                      id: n.id,
+                      type: n.type,
+                      label: n.label,
+                      properties: n.properties
+                    })),
+                    graphEdges: this.graph.getAllEdges()
+                  },
+                  null,
+                  2
+                )
+              }
+            ]
+          };
+        } catch (err) {
+          return errorResult(err);
         }
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
-                {
-                  success: staticRes.success,
-                  capabilityId: staticRes.capabilityId,
-                  toolUsed: staticRes.toolUsed,
-                  outputSummary: staticRes.outputSummary,
-                  artifactsProduced: staticRes.artifactsProduced,
-                  graphNodes: this.graph.getAllNodes().map((n) => ({
-                    id: n.id,
-                    type: n.type,
-                    label: n.label,
-                    properties: n.properties
-                  })),
-                  graphEdges: this.graph.getAllEdges()
-                },
-                null,
-                2
-              )
-            }
-          ]
-        };
       }
     );
 
@@ -174,24 +202,28 @@ export class OpenRevMcpServer {
         }
       },
       async ({ query, category }) => {
-        const nodes = this.graph.searchNodes(query);
-        const docs = this.search.search(query, category);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
-                {
-                  query,
-                  graphNodes: nodes,
-                  documents: docs
-                },
-                null,
-                2
+        try {
+          const nodes = this.graph.searchNodes(query);
+          const docs = this.search.search(query, category);
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  {
+                    query,
+                    graphNodes: nodes,
+                    documents: docs
+                  },
+                  null,
+                  2
               )
             }
           ]
         };
+        } catch (err) {
+          return errorResult(err);
+        }
       }
     );
 
@@ -256,18 +288,22 @@ export class OpenRevMcpServer {
         }
       },
       async ({ targetPath }) => {
-        const capEngine = new CapabilityEngine(this.registry, this.graph);
-        const wfEngine = new WorkflowEngine(capEngine);
-        const dag = wfEngine.getDefaultAuditWorkflow();
-        const results = await wfEngine.executeDAG(dag, targetPath);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({ workflowId: dag.id, workflowName: dag.name, results }, null, 2)
-            }
-          ]
-        };
+        try {
+          const capEngine = new CapabilityEngine(this.registry, this.graph);
+          const wfEngine = new WorkflowEngine(capEngine);
+          const dag = wfEngine.getDefaultAuditWorkflow();
+          const results = await wfEngine.executeDAG(dag, targetPath);
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({ workflowId: dag.id, workflowName: dag.name, results }, null, 2)
+              }
+            ]
+          };
+        } catch (err) {
+          return errorResult(err);
+        }
       }
     );
 
@@ -400,10 +436,10 @@ export class OpenRevMcpServer {
     );
   }
 
-  public async start(): Promise<void> {
-    const transport = new StdioServerTransport();
+  public async start(transport?: unknown): Promise<void> {
+    const t = transport ?? new StdioServerTransport();
     console.error(TOOLS_SUMMARY);
-    await this.server.connect(transport);
+    await this.server.connect(t as any);
   }
 }
 

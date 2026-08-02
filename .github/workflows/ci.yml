@@ -26,13 +26,21 @@ jobs:
           cache: 'npm'
 
       - name: Install Monorepo Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Type Check
         run: npm run typecheck
 
-      - name: Run Test Suite (unit + adapters + integration)
+      - name: Run Test Suite (unit + cli + adapters + integration + mcp)
         run: npm test
+
+      - name: Coverage Report
+        run: npm run test:coverage 2>&1 | grep -E "all files|line %"
+
+      - name: Security Audit (secrets + supply chain)
+        run: |
+          node scripts/security_audit.mjs
+          npm audit --omit=dev
 
       - name: CLI Smoke Test (real APK fixture)
         run: node --import tsx bin/openrev.js analyze tests/fixtures/FixtureApp.apk --json | grep -q '"packageName": "com.example.two_rings"' && echo "CLI OK"

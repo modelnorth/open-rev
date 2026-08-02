@@ -1,14 +1,14 @@
 # OpenRev Test Report
 
 **Generated**: 2026-08-02 · Node v24.18.0 · Windows
-**Command**: `npm test` (`node --import tsx --test --test-timeout=60000 tests/unit/core.test.ts tests/adapters/adapters.test.ts tests/integration/pipeline.test.ts`)
+**Command**: `npm test` (`node --import tsx --test --test-timeout=60000 tests/unit/core.test.ts tests/unit/cli.test.ts tests/adapters/adapters.test.ts tests/integration/pipeline.test.ts tests/mcp/mcp.test.ts`)
 
 ## Result
 
 | | |
 | :--- | :--- |
-| **Tests** | **29** |
-| **Pass** | **29** |
+| **Tests** | **47** |
+| **Pass** | **47** |
 | **Fail** | **0** |
 | **Skipped / Todo** | 0 |
 | **Duration** | ~1.2 s |
@@ -22,10 +22,23 @@
 - Milestone 0 vertical slice (real pipeline)
 - ArtifactKnowledgeGraph node/edge management
 - ExtensionHostManager process spawning/termination
-- RemoteExecutionGateway multi-target routing (docker really probed; remote → honest `UNSUPPORTED_FORMAT`)
+- RemoteExecutionGateway multi-target routing (docker really probed; remote → honest error)
 - KnowledgeGraphQueryAPI domain queries
 - WorkspaceSnapshotEngine snapshots/restores
 - DependencyRegistry health checks (real PATH probes)
+
+### `tests/unit/cli.test.ts` — CLI exit codes + real commands
+- `version` prints `0.1.0-alpha.2`, exit 0
+- `help` exit 0
+- unknown command → exit 2
+- `analyze` without target → exit 2
+- `analyze` on fixture → real pipeline, package `com.example.two_rings`, 33 graph nodes, 6 exported
+- `analyze` on missing file → exit 1 with `FILE_NOT_FOUND`
+- `graph` → 33 nodes / 32 edges
+- `search` → finds INTERNET permission (10 indexed docs)
+- `report` → real Markdown with package + Mermaid graph
+- `workflow` → static step real success, decompile step honest failure when jadx absent
+- `deps` → real health checks
 
 ### `tests/adapters/adapters.test.ts` — real tool adapters
 - JADX: probes availability honestly; decompile → `TOOL_NOT_FOUND` when absent
@@ -45,10 +58,19 @@
 - SearchIndexer supports `regex:` mode + category filter
 - SearchIndexer throws on invalid regex
 
+### `tests/mcp/mcp.test.ts` — real MCP client over in-memory transport
+- `tools/list` exposes all 10 tools with input schemas
+- `analyze_target` runs the real pipeline (33 nodes)
+- `analyze_target` on missing file → `isError` with typed `FILE_NOT_FOUND`
+- `query_graph_api` returns 6 exported components after analysis
+- `generate_report` returns real Markdown (package + Mermaid)
+- `analyze_provider` unknown provider → honest `isError`
+- `analyze_provider` `provider.jadx` → honest `TOOL_NOT_FOUND` when absent (or success when installed)
+
 ## What the tests do NOT cover (honesty)
 
-- jadx/apktool/ghidra **success paths** (tools not installed — only `TOOL_NOT_FOUND` paths are exercised). See `KNOWN_LIMITATIONS.md`.
+- jadx/apktool/ghidra **success paths** (tools not installed — only `TOOL_NOT_FOUND` paths exercised).
 - Real device interaction (no device attached).
 - AI/RAG (no LLM provider).
 - Browser UI / Tauri (experimental).
-- Line/branch coverage of the above gaps is reflected in `COVERAGE_REPORT.md` (85.2% line overall).
+- Malformed-archive error branches in `zip_reader.ts` (recommended follow-up).
