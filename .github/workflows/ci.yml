@@ -33,7 +33,22 @@ jobs:
         run: npm run typecheck
 
       - name: Run Test Suite (unit + cli + adapters + integration + mcp)
-        run: npm test
+        shell: bash
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee /tmp/openrev-test.log
+
+      - name: Report failing tests (step summary)
+        if: failure()
+        shell: bash
+        run: |
+          {
+            echo "### Failing tests"
+            grep -aE "failing tests|✖|not ok" /tmp/openrev-test.log | head -20 || echo "no failing-test lines found"
+            echo ""
+            echo "#### tail of test log"
+            tail -40 /tmp/openrev-test.log
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Coverage Report
         shell: bash
