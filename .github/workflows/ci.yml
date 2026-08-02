@@ -36,9 +36,11 @@ jobs:
         run: npm test
 
       - name: Coverage Report
+        shell: bash
         run: npm run test:coverage 2>&1 | grep -E "all files|line %"
 
       - name: Security Audit (secrets + supply chain)
+        shell: bash
         run: |
           node scripts/security_audit.mjs
           npm audit --omit=dev
