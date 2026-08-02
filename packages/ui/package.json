@@ -1,6 +1,6 @@
 {
   "name": "@openrev/ui",
-  "version": "1.0.0",
+  "version": "0.1.0-alpha.1",
   "private": true,
   "description": "Dockable Multi-Panel UI for OpenRev Platform",
   "main": "src/App.tsx",

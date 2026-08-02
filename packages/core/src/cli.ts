@@ -34,7 +34,7 @@ interface CliOptions {
   json: boolean;
 }
 
-const VERSION = '1.0.0';
+const VERSION = '0.1.0-alpha.1';
 
 function log(...args: unknown[]): void {
   console.error(...args);

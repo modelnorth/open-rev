@@ -1,6 +1,6 @@
 {
   "name": "@openrev/mcp-server",
-  "version": "1.0.0",
+  "version": "0.1.0-alpha.1",
   "type": "module",
   "description": "OpenRev MCP Server — expose reverse-engineering capabilities to AI coding assistants (Claude Code, Antigravity, OpenCode)",
   "main": "src/index.ts",

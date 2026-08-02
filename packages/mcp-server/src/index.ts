@@ -34,7 +34,7 @@ import {
 import { ProductionAndroidProvider } from '@openrev/providers';
 import { createPluginScaffold } from '@openrev/plugin-sdk';
 
-const TOOLS_SUMMARY = `OpenRev MCP Server v1.0.0
+const TOOLS_SUMMARY = `OpenRev MCP Server v0.1.0-alpha.1
 
 Exposes reverse-engineering capabilities over MCP. Call tools such as
 "list_capabilities" to enumerate available capabilities, "analyze_target"
@@ -58,7 +58,7 @@ export class OpenRevMcpServer {
 
     this.server = new McpServer({
       name: 'openrev',
-      version: '1.0.0'
+      version: '0.1.0-alpha.1'
     });
 
     this.registerTools();

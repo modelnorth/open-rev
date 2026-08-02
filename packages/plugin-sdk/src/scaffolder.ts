@@ -11,11 +11,11 @@ export function createPluginScaffold(pluginName: string): Record<string, string>
     'package.json': JSON.stringify(
       {
         name: `openrev-plugin-${normalizedId}`,
-        version: '1.0.0',
+        version: '0.1.0-alpha.1',
         description: `OpenRev Plugin: ${pluginName}`,
         main: 'src/index.ts',
         dependencies: {
-          '@openrev/plugin-sdk': '^1.0.0'
+          '@openrev/plugin-sdk': '^0.1.0-alpha.1'
         }
       },
       null,

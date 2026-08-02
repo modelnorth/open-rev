@@ -1,6 +1,6 @@
 {
   "name": "@openrev/core",
-  "version": "1.0.0",
+  "version": "0.1.0-alpha.1",
   "type": "module",
   "description": "Core Engine, Capability Registry, Artifact Store, Event Store, and Scheduler for OpenRev",
   "main": "src/index.ts",
