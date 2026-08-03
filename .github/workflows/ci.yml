@@ -38,16 +38,18 @@ jobs:
           set -o pipefail
           npm test 2>&1 | tee /tmp/openrev-test.log
 
-      - name: Report failing tests (step summary)
+      - name: Report failing tests (annotations + summary)
         if: failure()
         shell: bash
         run: |
+          grep -a "test at" /tmp/openrev-test.log | head -20 | while IFS= read -r line; do echo "::error::$line"; done || true
+          grep -a "AssertionError\|Error:" /tmp/openrev-test.log | head -10 | while IFS= read -r line; do echo "::warning::${line:0:300}"; done || true
           {
             echo "### Failing tests"
-            grep -aE "failing tests|✖|not ok" /tmp/openrev-test.log | head -20 || echo "no failing-test lines found"
+            grep -a "test at" /tmp/openrev-test.log | head -20 || echo "none"
             echo ""
             echo "#### tail of test log"
-            tail -40 /tmp/openrev-test.log
+            tail -30 /tmp/openrev-test.log
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Coverage Report
