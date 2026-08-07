@@ -1,0 +1,11 @@
+{
+  "ruleId": "SIG_PACKER_0106",
+  "packer": "Nagravision",
+  "vendor": "Kudelski",
+  "iteration": 106,
+  "patterns": [
+    "libsm-nagra.so.106"
+  ],
+  "entropyThreshold": 7.3,
+  "severity": "critical"
+}
