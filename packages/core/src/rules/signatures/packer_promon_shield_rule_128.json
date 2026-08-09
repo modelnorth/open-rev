@@ -1,0 +1,12 @@
+{
+  "ruleId": "SIG_PACKER_0128",
+  "packer": "Promon SHIELD",
+  "vendor": "Promon",
+  "iteration": 128,
+  "patterns": [
+    "libpromon.so.128",
+    "libshield.so.128"
+  ],
+  "entropyThreshold": 7.2,
+  "severity": "critical"
+}
