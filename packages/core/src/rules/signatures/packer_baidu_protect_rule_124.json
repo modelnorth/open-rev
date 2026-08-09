@@ -1,0 +1,12 @@
+{
+  "ruleId": "SIG_PACKER_0124",
+  "packer": "Baidu Protect",
+  "vendor": "Baidu",
+  "iteration": 124,
+  "patterns": [
+    "libbaiduprotect.so.124",
+    "baiduprotect1.jar.124"
+  ],
+  "entropyThreshold": 7.4,
+  "severity": "critical"
+}
