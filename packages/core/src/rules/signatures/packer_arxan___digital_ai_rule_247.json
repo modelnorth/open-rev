@@ -1,0 +1,12 @@
+{
+  "ruleId": "SIG_PACKER_0247",
+  "packer": "Arxan / Digital.ai",
+  "vendor": "Digital.ai",
+  "iteration": 247,
+  "patterns": [
+    "libarx.so.247",
+    "libarxan.so.247"
+  ],
+  "entropyThreshold": 7.55,
+  "severity": "critical"
+}
