@@ -1,0 +1,11 @@
+{
+  "ruleId": "SIG_PACKER_0239",
+  "packer": "Medusa",
+  "vendor": "Medusa",
+  "iteration": 239,
+  "patterns": [
+    "libmedusa.so.239"
+  ],
+  "entropyThreshold": 7.55,
+  "severity": "critical"
+}
