@@ -1,0 +1,13 @@
+{
+  "ruleId": "SIG_PACKER_0263",
+  "packer": "Qihoo 360",
+  "vendor": "Qihoo",
+  "iteration": 263,
+  "patterns": [
+    "libjiagu.so.263",
+    "libjiagu_art.so.263",
+    "libprotectClass.so.263"
+  ],
+  "entropyThreshold": 7.55,
+  "severity": "critical"
+}
