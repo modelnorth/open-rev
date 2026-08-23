@@ -1,0 +1,13 @@
+{
+  "ruleId": "SIG_PACKER_0280",
+  "packer": "SecShell",
+  "vendor": "Bangcle",
+  "iteration": 280,
+  "patterns": [
+    "libSecShell.so.280",
+    "libsecmain.so.280",
+    "secData0.jar.280"
+  ],
+  "entropyThreshold": 7.2,
+  "severity": "critical"
+}
