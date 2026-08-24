@@ -1,0 +1,13 @@
+{
+  "ruleId": "SIG_PACKER_0282",
+  "packer": "Tencent Legu",
+  "vendor": "Tencent",
+  "iteration": 282,
+  "patterns": [
+    "libshella.282",
+    "libshellx.282",
+    "01111110.282"
+  ],
+  "entropyThreshold": 7.3,
+  "severity": "critical"
+}
