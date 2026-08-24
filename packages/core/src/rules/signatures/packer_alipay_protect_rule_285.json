@@ -1,0 +1,12 @@
+{
+  "ruleId": "SIG_PACKER_0285",
+  "packer": "AliPay Protect",
+  "vendor": "Alibaba",
+  "iteration": 285,
+  "patterns": [
+    "libsgmain.so.285",
+    "libsgsecuritybody.so.285"
+  ],
+  "entropyThreshold": 7.45,
+  "severity": "critical"
+}
