@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.READ_EXTERNAL_STORAGE",
+  "variant": 22,
+  "protectionLevel": "signature",
+  "riskScore": 42,
+  "exploitVector": "ACCESS_READ_EXTERNAL_STORAGE_UNBOUNDED_22",
+  "auditRequirement": true
+}
