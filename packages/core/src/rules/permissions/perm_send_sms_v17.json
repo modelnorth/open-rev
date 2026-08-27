@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.SEND_SMS",
+  "variant": 17,
+  "protectionLevel": "normal",
+  "riskScore": 37,
+  "exploitVector": "ACCESS_SEND_SMS_UNBOUNDED_17",
+  "auditRequirement": false
+}
