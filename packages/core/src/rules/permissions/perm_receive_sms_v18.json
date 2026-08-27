@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.RECEIVE_SMS",
+  "variant": 18,
+  "protectionLevel": "dangerous",
+  "riskScore": 38,
+  "exploitVector": "ACCESS_RECEIVE_SMS_UNBOUNDED_18",
+  "auditRequirement": true
+}
