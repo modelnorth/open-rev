@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.ADD_VOICEMAIL",
+  "variant": 13,
+  "protectionLevel": "signature",
+  "riskScore": 33,
+  "exploitVector": "ACCESS_ADD_VOICEMAIL_UNBOUNDED_13",
+  "auditRequirement": false
+}
