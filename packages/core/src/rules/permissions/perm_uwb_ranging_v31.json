@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.UWB_RANGING",
+  "variant": 31,
+  "protectionLevel": "signature",
+  "riskScore": 51,
+  "exploitVector": "ACCESS_UWB_RANGING_UNBOUNDED_31",
+  "auditRequirement": false
+}
