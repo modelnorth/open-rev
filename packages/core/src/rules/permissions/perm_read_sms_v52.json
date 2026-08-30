@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.READ_SMS",
+  "variant": 52,
+  "protectionLevel": "signature",
+  "riskScore": 72,
+  "exploitVector": "ACCESS_READ_SMS_UNBOUNDED_52",
+  "auditRequirement": true
+}
