@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.WRITE_CALL_LOG",
+  "variant": 45,
+  "protectionLevel": "dangerous",
+  "riskScore": 65,
+  "exploitVector": "ACCESS_WRITE_CALL_LOG_UNBOUNDED_45",
+  "auditRequirement": false
+}
