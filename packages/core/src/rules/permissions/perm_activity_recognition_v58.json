@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.ACTIVITY_RECOGNITION",
+  "variant": 58,
+  "protectionLevel": "signature",
+  "riskScore": 78,
+  "exploitVector": "ACCESS_ACTIVITY_RECOGNITION_UNBOUNDED_58",
+  "auditRequirement": true
+}
