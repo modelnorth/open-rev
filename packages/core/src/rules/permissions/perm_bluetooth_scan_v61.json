@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.BLUETOOTH_SCAN",
+  "variant": 61,
+  "protectionLevel": "signature",
+  "riskScore": 81,
+  "exploitVector": "ACCESS_BLUETOOTH_SCAN_UNBOUNDED_61",
+  "auditRequirement": false
+}
