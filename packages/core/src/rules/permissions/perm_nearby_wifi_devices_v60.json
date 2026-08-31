@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.NEARBY_WIFI_DEVICES",
+  "variant": 60,
+  "protectionLevel": "dangerous",
+  "riskScore": 80,
+  "exploitVector": "ACCESS_NEARBY_WIFI_DEVICES_UNBOUNDED_60",
+  "auditRequirement": true
+}
