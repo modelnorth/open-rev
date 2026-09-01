@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.GET_ACCOUNTS",
+  "variant": 71,
+  "protectionLevel": "normal",
+  "riskScore": 91,
+  "exploitVector": "ACCESS_GET_ACCOUNTS_UNBOUNDED_71",
+  "auditRequirement": false
+}
