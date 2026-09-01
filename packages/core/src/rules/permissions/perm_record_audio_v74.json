@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.RECORD_AUDIO",
+  "variant": 74,
+  "protectionLevel": "normal",
+  "riskScore": 94,
+  "exploitVector": "ACCESS_RECORD_AUDIO_UNBOUNDED_74",
+  "auditRequirement": true
+}
