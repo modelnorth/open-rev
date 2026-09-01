@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.BODY_SENSORS_BACKGROUND",
+  "variant": 65,
+  "protectionLevel": "normal",
+  "riskScore": 85,
+  "exploitVector": "ACCESS_BODY_SENSORS_BACKGROUND_UNBOUNDED_65",
+  "auditRequirement": false
+}
