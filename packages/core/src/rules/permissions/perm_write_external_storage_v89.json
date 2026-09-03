@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.WRITE_EXTERNAL_STORAGE",
+  "variant": 89,
+  "protectionLevel": "normal",
+  "riskScore": 29,
+  "exploitVector": "ACCESS_WRITE_EXTERNAL_STORAGE_UNBOUNDED_89",
+  "auditRequirement": false
+}
