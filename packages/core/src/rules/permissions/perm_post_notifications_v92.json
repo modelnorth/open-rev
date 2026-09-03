@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.POST_NOTIFICATIONS",
+  "variant": 92,
+  "protectionLevel": "normal",
+  "riskScore": 32,
+  "exploitVector": "ACCESS_POST_NOTIFICATIONS_UNBOUNDED_92",
+  "auditRequirement": true
+}
