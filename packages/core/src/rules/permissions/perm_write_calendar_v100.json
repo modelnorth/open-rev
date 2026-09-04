@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.WRITE_CALENDAR",
+  "variant": 100,
+  "protectionLevel": "signature",
+  "riskScore": 40,
+  "exploitVector": "ACCESS_WRITE_CALENDAR_UNBOUNDED_100",
+  "auditRequirement": true
+}
