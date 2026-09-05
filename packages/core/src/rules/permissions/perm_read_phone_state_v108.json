@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.READ_PHONE_STATE",
+  "variant": 108,
+  "protectionLevel": "dangerous",
+  "riskScore": 48,
+  "exploitVector": "ACCESS_READ_PHONE_STATE_UNBOUNDED_108",
+  "auditRequirement": true
+}
