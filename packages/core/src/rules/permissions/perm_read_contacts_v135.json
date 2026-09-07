@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.READ_CONTACTS",
+  "variant": 135,
+  "protectionLevel": "dangerous",
+  "riskScore": 75,
+  "exploitVector": "ACCESS_READ_CONTACTS_UNBOUNDED_135",
+  "auditRequirement": false
+}
