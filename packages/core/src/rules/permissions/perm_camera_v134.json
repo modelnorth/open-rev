@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.CAMERA",
+  "variant": 134,
+  "protectionLevel": "normal",
+  "riskScore": 74,
+  "exploitVector": "ACCESS_CAMERA_UNBOUNDED_134",
+  "auditRequirement": true
+}
