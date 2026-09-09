@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.RECEIVE_MMS",
+  "variant": 153,
+  "protectionLevel": "dangerous",
+  "riskScore": 93,
+  "exploitVector": "ACCESS_RECEIVE_MMS_UNBOUNDED_153",
+  "auditRequirement": false
+}
