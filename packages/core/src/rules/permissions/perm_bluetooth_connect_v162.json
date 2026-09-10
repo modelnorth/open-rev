@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.BLUETOOTH_CONNECT",
+  "variant": 162,
+  "protectionLevel": "dangerous",
+  "riskScore": 22,
+  "exploitVector": "ACCESS_BLUETOOTH_CONNECT_UNBOUNDED_162",
+  "auditRequirement": true
+}
