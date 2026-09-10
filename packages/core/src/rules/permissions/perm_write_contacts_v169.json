@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.WRITE_CONTACTS",
+  "variant": 169,
+  "protectionLevel": "signature",
+  "riskScore": 29,
+  "exploitVector": "ACCESS_WRITE_CONTACTS_UNBOUNDED_169",
+  "auditRequirement": false
+}
