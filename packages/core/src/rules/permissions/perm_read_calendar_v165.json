@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.READ_CALENDAR",
+  "variant": 165,
+  "protectionLevel": "dangerous",
+  "riskScore": 25,
+  "exploitVector": "ACCESS_READ_CALENDAR_UNBOUNDED_165",
+  "auditRequirement": false
+}
