@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.BLUETOOTH_ADVERTISE",
+  "variant": 161,
+  "protectionLevel": "normal",
+  "riskScore": 21,
+  "exploitVector": "ACCESS_BLUETOOTH_ADVERTISE_UNBOUNDED_161",
+  "auditRequirement": false
+}
