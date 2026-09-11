@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.ACCESS_FINE_LOCATION",
+  "variant": 171,
+  "protectionLevel": "dangerous",
+  "riskScore": 31,
+  "exploitVector": "ACCESS_ACCESS_FINE_LOCATION_UNBOUNDED_171",
+  "auditRequirement": false
+}
