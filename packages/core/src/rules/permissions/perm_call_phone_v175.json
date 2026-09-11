@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.CALL_PHONE",
+  "variant": 175,
+  "protectionLevel": "signature",
+  "riskScore": 35,
+  "exploitVector": "ACCESS_CALL_PHONE_UNBOUNDED_175",
+  "auditRequirement": false
+}
