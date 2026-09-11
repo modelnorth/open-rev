@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.USE_SIP",
+  "variant": 179,
+  "protectionLevel": "normal",
+  "riskScore": 39,
+  "exploitVector": "ACCESS_USE_SIP_UNBOUNDED_179",
+  "auditRequirement": false
+}
