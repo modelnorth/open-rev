@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.ACCESS_COARSE_LOCATION",
+  "variant": 172,
+  "protectionLevel": "signature",
+  "riskScore": 32,
+  "exploitVector": "ACCESS_ACCESS_COARSE_LOCATION_UNBOUNDED_172",
+  "auditRequirement": true
+}
