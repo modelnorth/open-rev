@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.RECEIVE_WAP_PUSH",
+  "variant": 185,
+  "protectionLevel": "normal",
+  "riskScore": 45,
+  "exploitVector": "ACCESS_RECEIVE_WAP_PUSH_UNBOUNDED_185",
+  "auditRequirement": false
+}
