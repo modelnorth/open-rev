@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.READ_CALL_LOG",
+  "variant": 209,
+  "protectionLevel": "normal",
+  "riskScore": 69,
+  "exploitVector": "ACCESS_READ_CALL_LOG_UNBOUNDED_209",
+  "auditRequirement": false
+}
