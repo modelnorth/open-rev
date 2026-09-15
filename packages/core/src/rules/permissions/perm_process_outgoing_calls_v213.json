@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.PROCESS_OUTGOING_CALLS",
+  "variant": 213,
+  "protectionLevel": "dangerous",
+  "riskScore": 73,
+  "exploitVector": "ACCESS_PROCESS_OUTGOING_CALLS_UNBOUNDED_213",
+  "auditRequirement": false
+}
