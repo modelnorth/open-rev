@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.BODY_SENSORS",
+  "variant": 214,
+  "protectionLevel": "signature",
+  "riskScore": 74,
+  "exploitVector": "ACCESS_BODY_SENSORS_UNBOUNDED_214",
+  "auditRequirement": true
+}
