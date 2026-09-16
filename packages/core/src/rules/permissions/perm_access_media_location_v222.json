@@ -1,0 +1,8 @@
+{
+  "permission": "android.permission.ACCESS_MEDIA_LOCATION",
+  "variant": 222,
+  "protectionLevel": "dangerous",
+  "riskScore": 82,
+  "exploitVector": "ACCESS_ACCESS_MEDIA_LOCATION_UNBOUNDED_222",
+  "auditRequirement": true
+}
