@@ -1,0 +1,10 @@
+{
+  "command": "LC_THREAD",
+  "commandCode": "0x13",
+  "architecture": "ARM64e",
+  "specVersion": "18.3",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
