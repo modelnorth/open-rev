@@ -1,0 +1,10 @@
+{
+  "command": "LC_LOAD_DYLIB",
+  "commandCode": "0x1b",
+  "architecture": "ARM64e",
+  "specVersion": "18.1",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
