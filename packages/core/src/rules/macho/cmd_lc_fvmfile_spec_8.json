@@ -1,0 +1,10 @@
+{
+  "command": "LC_FVMFILE",
+  "commandCode": "0x18",
+  "architecture": "ARM64",
+  "specVersion": "18.3",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
