@@ -1,0 +1,10 @@
+{
+  "command": "LC_PREBIND_CKSUM",
+  "commandCode": "0x26",
+  "architecture": "ARM64",
+  "specVersion": "18.2",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
