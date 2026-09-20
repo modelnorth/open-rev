@@ -1,0 +1,10 @@
+{
+  "command": "LC_SUB_LIBRARY",
+  "commandCode": "0x24",
+  "architecture": "ARM64",
+  "specVersion": "18.0",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
