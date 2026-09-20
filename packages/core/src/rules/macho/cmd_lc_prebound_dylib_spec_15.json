@@ -1,0 +1,10 @@
+{
+  "command": "LC_PREBOUND_DYLIB",
+  "commandCode": "0x1f",
+  "architecture": "ARM64e",
+  "specVersion": "18.0",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
