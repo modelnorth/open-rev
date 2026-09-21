@@ -1,0 +1,10 @@
+{
+  "command": "LC_RPATH",
+  "commandCode": "0x2b",
+  "architecture": "ARM64e",
+  "specVersion": "18.2",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
