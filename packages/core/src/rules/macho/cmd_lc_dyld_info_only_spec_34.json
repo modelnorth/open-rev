@@ -1,0 +1,10 @@
+{
+  "command": "LC_DYLD_INFO_ONLY",
+  "commandCode": "0x32",
+  "architecture": "ARM64",
+  "specVersion": "18.4",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
