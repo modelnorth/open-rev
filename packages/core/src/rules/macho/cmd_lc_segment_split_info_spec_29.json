@@ -1,0 +1,10 @@
+{
+  "command": "LC_SEGMENT_SPLIT_INFO",
+  "commandCode": "0x2d",
+  "architecture": "ARM64e",
+  "specVersion": "18.4",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
