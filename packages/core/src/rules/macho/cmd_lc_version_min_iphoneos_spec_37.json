@@ -1,0 +1,10 @@
+{
+  "command": "LC_VERSION_MIN_IPHONEOS",
+  "commandCode": "0x35",
+  "architecture": "ARM64e",
+  "specVersion": "18.2",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
