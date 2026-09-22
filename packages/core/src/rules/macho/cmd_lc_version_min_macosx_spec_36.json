@@ -1,0 +1,10 @@
+{
+  "command": "LC_VERSION_MIN_MACOSX",
+  "commandCode": "0x34",
+  "architecture": "ARM64",
+  "specVersion": "18.1",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
