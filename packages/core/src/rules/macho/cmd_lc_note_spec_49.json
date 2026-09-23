@@ -1,0 +1,10 @@
+{
+  "command": "LC_NOTE",
+  "commandCode": "0x41",
+  "architecture": "ARM64e",
+  "specVersion": "18.4",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
