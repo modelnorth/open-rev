@@ -1,0 +1,10 @@
+{
+  "command": "LC_BUILD_VERSION",
+  "commandCode": "0x42",
+  "architecture": "ARM64",
+  "specVersion": "18.0",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
