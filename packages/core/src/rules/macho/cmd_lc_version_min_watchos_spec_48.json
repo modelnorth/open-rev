@@ -1,0 +1,10 @@
+{
+  "command": "LC_VERSION_MIN_WATCHOS",
+  "commandCode": "0x40",
+  "architecture": "ARM64",
+  "specVersion": "18.3",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
