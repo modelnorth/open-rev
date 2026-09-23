@@ -1,0 +1,10 @@
+{
+  "command": "LC_SYMSEG",
+  "commandCode": "0x45",
+  "architecture": "ARM64e",
+  "specVersion": "18.3",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
