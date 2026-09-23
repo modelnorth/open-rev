@@ -1,0 +1,10 @@
+{
+  "command": "LC_UNIXTHREAD",
+  "commandCode": "0x47",
+  "architecture": "ARM64e",
+  "specVersion": "18.0",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
