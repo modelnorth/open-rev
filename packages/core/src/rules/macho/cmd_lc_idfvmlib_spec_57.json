@@ -1,0 +1,10 @@
+{
+  "command": "LC_IDFVMLIB",
+  "commandCode": "0x49",
+  "architecture": "ARM64e",
+  "specVersion": "18.2",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
