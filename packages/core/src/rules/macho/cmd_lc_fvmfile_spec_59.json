@@ -1,0 +1,10 @@
+{
+  "command": "LC_FVMFILE",
+  "commandCode": "0x4b",
+  "architecture": "ARM64e",
+  "specVersion": "18.4",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
