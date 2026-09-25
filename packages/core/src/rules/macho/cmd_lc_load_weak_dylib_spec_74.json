@@ -1,0 +1,10 @@
+{
+  "command": "LC_LOAD_WEAK_DYLIB",
+  "commandCode": "0x5a",
+  "architecture": "ARM64",
+  "specVersion": "18.4",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
