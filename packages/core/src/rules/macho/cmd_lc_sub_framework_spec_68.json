@@ -1,0 +1,10 @@
+{
+  "command": "LC_SUB_FRAMEWORK",
+  "commandCode": "0x54",
+  "architecture": "ARM64",
+  "specVersion": "18.3",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
