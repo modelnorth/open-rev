@@ -1,0 +1,10 @@
+{
+  "command": "LC_UUID",
+  "commandCode": "0x5d",
+  "architecture": "ARM64e",
+  "specVersion": "18.2",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
