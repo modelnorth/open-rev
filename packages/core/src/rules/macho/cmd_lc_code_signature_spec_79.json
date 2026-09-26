@@ -1,0 +1,10 @@
+{
+  "command": "LC_CODE_SIGNATURE",
+  "commandCode": "0x5f",
+  "architecture": "ARM64e",
+  "specVersion": "18.4",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
