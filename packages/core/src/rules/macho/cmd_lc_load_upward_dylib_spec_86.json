@@ -1,0 +1,10 @@
+{
+  "command": "LC_LOAD_UPWARD_DYLIB",
+  "commandCode": "0x66",
+  "architecture": "ARM64",
+  "specVersion": "18.1",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
