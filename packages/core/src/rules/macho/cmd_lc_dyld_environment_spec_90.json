@@ -1,0 +1,10 @@
+{
+  "command": "LC_DYLD_ENVIRONMENT",
+  "commandCode": "0x6a",
+  "architecture": "ARM64",
+  "specVersion": "18.0",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
