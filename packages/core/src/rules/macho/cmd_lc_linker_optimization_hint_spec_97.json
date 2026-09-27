@@ -1,0 +1,10 @@
+{
+  "command": "LC_LINKER_OPTIMIZATION_HINT",
+  "commandCode": "0x71",
+  "architecture": "ARM64e",
+  "specVersion": "18.2",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
