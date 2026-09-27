@@ -1,0 +1,10 @@
+{
+  "command": "LC_FUNCTION_STARTS",
+  "commandCode": "0x69",
+  "architecture": "ARM64e",
+  "specVersion": "18.4",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
