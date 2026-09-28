@@ -1,0 +1,10 @@
+{
+  "command": "LC_BUILD_VERSION",
+  "commandCode": "0x75",
+  "architecture": "ARM64e",
+  "specVersion": "18.1",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
