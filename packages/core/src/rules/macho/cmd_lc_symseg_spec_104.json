@@ -1,0 +1,10 @@
+{
+  "command": "LC_SYMSEG",
+  "commandCode": "0x78",
+  "architecture": "ARM64",
+  "specVersion": "18.4",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
