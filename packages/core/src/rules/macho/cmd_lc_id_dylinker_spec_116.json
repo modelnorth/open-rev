@@ -1,0 +1,10 @@
+{
+  "command": "LC_ID_DYLINKER",
+  "commandCode": "0x84",
+  "architecture": "ARM64",
+  "specVersion": "18.1",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
