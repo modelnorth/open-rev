@@ -1,0 +1,10 @@
+{
+  "command": "LC_ID_DYLIB",
+  "commandCode": "0x82",
+  "architecture": "ARM64",
+  "specVersion": "18.4",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
