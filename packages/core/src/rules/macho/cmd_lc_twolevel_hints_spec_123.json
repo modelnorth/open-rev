@@ -1,0 +1,10 @@
+{
+  "command": "LC_TWOLEVEL_HINTS",
+  "commandCode": "0x8b",
+  "architecture": "ARM64e",
+  "specVersion": "18.3",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
