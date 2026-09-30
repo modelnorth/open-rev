@@ -1,0 +1,10 @@
+{
+  "command": "LC_SEGMENT_64",
+  "commandCode": "0x8e",
+  "architecture": "ARM64",
+  "specVersion": "18.1",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
