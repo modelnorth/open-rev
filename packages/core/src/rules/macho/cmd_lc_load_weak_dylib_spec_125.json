@@ -1,0 +1,10 @@
+{
+  "command": "LC_LOAD_WEAK_DYLIB",
+  "commandCode": "0x8d",
+  "architecture": "ARM64e",
+  "specVersion": "18.0",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
