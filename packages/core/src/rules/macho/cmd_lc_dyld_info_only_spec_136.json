@@ -1,0 +1,10 @@
+{
+  "command": "LC_DYLD_INFO_ONLY",
+  "commandCode": "0x98",
+  "architecture": "ARM64",
+  "specVersion": "18.1",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
