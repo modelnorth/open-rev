@@ -1,0 +1,10 @@
+{
+  "command": "LC_FUNCTION_STARTS",
+  "commandCode": "0x9c",
+  "architecture": "ARM64",
+  "specVersion": "18.0",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
