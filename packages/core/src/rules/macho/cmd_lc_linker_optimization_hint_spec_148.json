@@ -1,0 +1,10 @@
+{
+  "command": "LC_LINKER_OPTIMIZATION_HINT",
+  "commandCode": "0xa4",
+  "architecture": "ARM64",
+  "specVersion": "18.3",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
