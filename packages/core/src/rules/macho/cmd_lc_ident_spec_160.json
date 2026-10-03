@@ -1,0 +1,10 @@
+{
+  "command": "LC_IDENT",
+  "commandCode": "0xb0",
+  "architecture": "ARM64",
+  "specVersion": "18.0",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
