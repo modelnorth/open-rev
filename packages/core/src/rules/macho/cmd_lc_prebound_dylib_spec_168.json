@@ -1,0 +1,10 @@
+{
+  "command": "LC_PREBOUND_DYLIB",
+  "commandCode": "0xb8",
+  "architecture": "ARM64",
+  "specVersion": "18.3",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
