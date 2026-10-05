@@ -1,0 +1,10 @@
+{
+  "command": "LC_SUB_CLIENT",
+  "commandCode": "0xbc",
+  "architecture": "ARM64",
+  "specVersion": "18.2",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
