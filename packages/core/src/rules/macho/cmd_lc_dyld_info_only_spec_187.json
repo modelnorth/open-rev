@@ -1,0 +1,10 @@
+{
+  "command": "LC_DYLD_INFO_ONLY",
+  "commandCode": "0xcb",
+  "architecture": "ARM64e",
+  "specVersion": "18.2",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
