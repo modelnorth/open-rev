@@ -1,0 +1,10 @@
+{
+  "command": "LC_REEXPORT_DYLIB",
+  "commandCode": "0xc7",
+  "architecture": "ARM64e",
+  "specVersion": "18.3",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
