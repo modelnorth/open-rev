@@ -1,0 +1,10 @@
+{
+  "command": "LC_DYLIB_CODE_SIGN_DRS",
+  "commandCode": "0xd4",
+  "architecture": "ARM64",
+  "specVersion": "18.1",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
