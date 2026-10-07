@@ -1,0 +1,10 @@
+{
+  "command": "LC_DATA_IN_CODE",
+  "commandCode": "0xd2",
+  "architecture": "ARM64",
+  "specVersion": "18.4",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
