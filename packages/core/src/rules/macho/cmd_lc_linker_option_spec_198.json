@@ -1,0 +1,10 @@
+{
+  "command": "LC_LINKER_OPTION",
+  "commandCode": "0xd6",
+  "architecture": "ARM64",
+  "specVersion": "18.3",
+  "supportedLoaders": [
+    "dyld_v4",
+    "dyld_v5"
+  ]
+}
