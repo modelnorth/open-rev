@@ -1,0 +1,8 @@
+{
+  "target": "offline_notes_v1.apk",
+  "runIndex": 2,
+  "expectedNodes": 27,
+  "expectedEdges": 26,
+  "slaParseMs": 17,
+  "passRate": 1
+}
