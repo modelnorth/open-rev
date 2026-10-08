@@ -1,0 +1,8 @@
+{
+  "target": "bluetooth_scanner_v1.apk",
+  "runIndex": 4,
+  "expectedNodes": 29,
+  "expectedEdges": 28,
+  "slaParseMs": 19,
+  "passRate": 1
+}
