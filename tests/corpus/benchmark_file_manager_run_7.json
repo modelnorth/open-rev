@@ -1,0 +1,8 @@
+{
+  "target": "file_manager_v1.apk",
+  "runIndex": 7,
+  "expectedNodes": 32,
+  "expectedEdges": 31,
+  "slaParseMs": 22,
+  "passRate": 1
+}
