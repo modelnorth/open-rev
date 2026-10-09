@@ -1,0 +1,8 @@
+{
+  "target": "terminal_emulator_v2.apk",
+  "runIndex": 15,
+  "expectedNodes": 40,
+  "expectedEdges": 39,
+  "slaParseMs": 18,
+  "passRate": 1
+}
