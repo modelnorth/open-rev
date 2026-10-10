@@ -1,0 +1,8 @@
+{
+  "target": "drawing_canvas_v4.apk",
+  "runIndex": 30,
+  "expectedNodes": 25,
+  "expectedEdges": 26,
+  "slaParseMs": 21,
+  "passRate": 1
+}
