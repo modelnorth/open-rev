@@ -1,0 +1,8 @@
+{
+  "target": "pdf_viewer_v7.apk",
+  "runIndex": 60,
+  "expectedNodes": 25,
+  "expectedEdges": 28,
+  "slaParseMs": 15,
+  "passRate": 1
+}
