@@ -1,0 +1,8 @@
+{
+  "target": "qr_scanner_v10.apk",
+  "runIndex": 90,
+  "expectedNodes": 25,
+  "expectedEdges": 30,
+  "slaParseMs": 21,
+  "passRate": 1
+}
