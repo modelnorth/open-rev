@@ -1,0 +1,8 @@
+{
+  "target": "compass_sensor_v11.apk",
+  "runIndex": 105,
+  "expectedNodes": 40,
+  "expectedEdges": 45,
+  "slaParseMs": 24,
+  "passRate": 1
+}
