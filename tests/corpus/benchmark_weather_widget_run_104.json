@@ -1,0 +1,8 @@
+{
+  "target": "weather_widget_v11.apk",
+  "runIndex": 104,
+  "expectedNodes": 39,
+  "expectedEdges": 44,
+  "slaParseMs": 23,
+  "passRate": 1
+}
