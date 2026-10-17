@@ -1,0 +1,8 @@
+{
+  "target": "camera_filter_v11.apk",
+  "runIndex": 101,
+  "expectedNodes": 36,
+  "expectedEdges": 41,
+  "slaParseMs": 20,
+  "passRate": 1
+}
