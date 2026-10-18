@@ -1,0 +1,8 @@
+{
+  "target": "audio_recorder_v12.apk",
+  "runIndex": 118,
+  "expectedNodes": 53,
+  "expectedEdges": 30,
+  "slaParseMs": 25,
+  "passRate": 1
+}
