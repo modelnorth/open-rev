@@ -1,0 +1,8 @@
+{
+  "target": "crypto_wallet_v14.apk",
+  "runIndex": 131,
+  "expectedNodes": 36,
+  "expectedEdges": 43,
+  "slaParseMs": 26,
+  "passRate": 1
+}
