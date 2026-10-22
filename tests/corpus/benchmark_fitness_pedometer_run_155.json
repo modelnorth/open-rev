@@ -1,0 +1,8 @@
+{
+  "target": "fitness_pedometer_v16.apk",
+  "runIndex": 155,
+  "expectedNodes": 30,
+  "expectedEdges": 39,
+  "slaParseMs": 26,
+  "passRate": 1
+}
