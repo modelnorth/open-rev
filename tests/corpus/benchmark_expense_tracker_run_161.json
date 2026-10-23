@@ -1,0 +1,8 @@
+{
+  "target": "expense_tracker_v17.apk",
+  "runIndex": 161,
+  "expectedNodes": 36,
+  "expectedEdges": 45,
+  "slaParseMs": 20,
+  "passRate": 1
+}
