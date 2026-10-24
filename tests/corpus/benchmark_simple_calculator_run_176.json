@@ -1,0 +1,8 @@
+{
+  "target": "simple_calculator_v18.apk",
+  "runIndex": 176,
+  "expectedNodes": 51,
+  "expectedEdges": 32,
+  "slaParseMs": 23,
+  "passRate": 1
+}
