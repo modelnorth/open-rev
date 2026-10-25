@@ -1,0 +1,8 @@
+{
+  "target": "drawing_canvas_v20.apk",
+  "runIndex": 190,
+  "expectedNodes": 35,
+  "expectedEdges": 46,
+  "slaParseMs": 25,
+  "passRate": 1
+}
