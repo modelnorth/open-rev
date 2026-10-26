@@ -15,8 +15,9 @@ export interface FrameworkDetectionResult {
 }
 
 export class FrameworkDetector {
-  public static detect(entryPaths: string[]): FrameworkDetectionResult {
-    const paths = new Set(entryPaths);
+  public static detect(entryPaths: string[] = []): FrameworkDetectionResult {
+    const validPaths = (entryPaths || []).filter(p => typeof p === 'string');
+    const paths = new Set(validPaths);
 
     // 1. Flutter Detection
     const flutterIndicators: string[] = [];

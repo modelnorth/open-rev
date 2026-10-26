@@ -77,20 +77,32 @@ export class AdbAdapter {
     const start = Date.now();
     try {
       const out = await runChecked(this.adbCommand(), { args: ['devices', '-l'] });
-      const lines = out.split(/\r?\n/).filter((l) => l.trim().length > 0 && !l.startsWith('List of devices'));
-      const devices: AdbDeviceInfo[] = lines.map((line) => {
+      const lines = out
+        .split(/\r?\n/)
+        .map(l => l.trim())
+        .filter((l) => l.length > 0 && !l.startsWith('List of devices') && !l.startsWith('* daemon'));
+      
+      const devices: AdbDeviceInfo[] = [];
+      for (const line of lines) {
         const parts = line.split(/\s+/);
         const serial = parts[0] ?? '';
-        const state = (parts[1] ?? 'unknown') as AdbDeviceInfo['state'];
+        // Skip daemon restart log lines that adb outputs
+        if (serial === '*' || !serial) continue;
+
+        const rawState = parts[1] ?? 'unknown';
+        const validStates = ['device', 'offline', 'unauthorized', 'unknown'];
+        const state = (validStates.includes(rawState) ? rawState : 'unknown') as AdbDeviceInfo['state'];
+
         const modelMatch = line.match(/model:([^\s]+)/);
         const versionMatch = line.match(/android_version:([^\s]+)/);
-        return {
+        devices.push({
           serial,
           state,
           model: modelMatch?.[1],
           androidVersion: versionMatch?.[1]
-        };
-      });
+        });
+      }
+
       return {
         ok: true,
         value: devices,
@@ -109,10 +121,7 @@ export class AdbAdapter {
     }
   }
 
-  public async installApk(
-    apkPath: string,
-    serial?: string
-  ): Promise<AdapterResponse<{ success: true; serial: string }>> {
+  public async install(apkPath: string, serial?: string): Promise<AdapterResponse<string>> {
     const probe = await this.isAvailable();
     if (!probe.found) {
       return {
@@ -123,103 +132,24 @@ export class AdbAdapter {
         })
       };
     }
-
-    let targetSerial = serial;
-    if (!targetSerial) {
-      const devices = await this.listDevices();
-      if (!devices.ok || devices.value.length === 0) {
-        return {
-          ok: false,
-          error: new OpenRevError({
-            code: 'NO_DEVICE_CONNECTED',
-            message: 'No connected Android device found.',
-            remediation: 'Connect a device with USB debugging enabled, or pass an explicit serial.'
-          })
-        };
-      }
-      const device = devices.value.find((d) => d.state === 'device') ?? devices.value[0];
-      targetSerial = device.serial;
-    }
-
+    const args = serial ? ['-s', serial, 'install', '-r', apkPath] : ['install', '-r', apkPath];
+    const start = Date.now();
     try {
-      const args = ['-s', targetSerial, 'install', '-r', apkPath];
-      const out = await runChecked(this.adbCommand(), { args, timeoutMs: 300_000 });
-      return {
-        ok: true,
-        value: { success: true, serial: targetSerial },
-        source: 'native',
-        elapsedMs: 0
-      };
+      const out = await runChecked(this.adbCommand(), { args });
+      return { ok: true, value: out, source: 'native', elapsedMs: Date.now() - start };
     } catch (err) {
       return {
         ok: false,
         error: new OpenRevError({
           code: 'TOOL_EXECUTION_FAILED',
-          message: `adb install failed: ${(err as Error).message}`,
-          cause: (err as Error).message
+          message: `adb install failed: ${(err as Error).message}`
         })
       };
     }
   }
 
-  public async dumpPackage(packageName: string, serial?: string): Promise<AdapterResponse<string>> {
-    const probe = await this.isAvailable();
-    if (!probe.found) {
-      return {
-        ok: false,
-        error: new OpenRevError({
-          code: OpenRevErrorCode.TOOL_NOT_FOUND,
-          message: 'adb is not installed.'
-        })
-      };
-    }
-    const args = serial
-      ? ['-s', serial, 'shell', 'dumpsys', 'package', packageName]
-      : ['shell', 'dumpsys', 'package', packageName];
-    try {
-      const out = await runChecked(this.adbCommand(), { args, timeoutMs: 60_000 });
-      return { ok: true, value: out, source: 'native', elapsedMs: 0 };
-    } catch (err) {
-      return {
-        ok: false,
-        error: new OpenRevError({
-          code: 'TOOL_EXECUTION_FAILED',
-          message: `adb dumpsys failed: ${(err as Error).message}`,
-          cause: (err as Error).message
-        })
-      };
-    }
-  }
-
-  public streamLogcat(
-    onLog: (line: string) => void,
-    serial?: string,
-    abortSignal?: AbortSignal
-  ): { stop: () => void } | undefined {
-    const args = serial
-      ? ['-s', serial, 'logcat', '-v', 'threadtime']
-      : ['logcat', '-v', 'threadtime'];
-    let child: ChildProcessWithoutNullStreams;
-    try {
-      child = spawn(this.adbCommand(), args, { windowsHide: true });
-    } catch {
-      return undefined;
-    }
-
-    const onAbort = () => child.kill();
-    abortSignal?.addEventListener('abort', onAbort, { once: true });
-
-    child.stdout.on('data', (chunk: Buffer) => {
-      for (const line of chunk.toString().split(/\r?\n/)) {
-        if (line.trim().length) onLog(line);
-      }
-    });
-
-    return {
-      stop: () => {
-        abortSignal?.removeEventListener('abort', onAbort);
-        child.kill();
-      }
-    };
+  public spawnLogcat(serial?: string): ChildProcessWithoutNullStreams {
+    const args = serial ? ['-s', serial, 'logcat', '-v', 'time'] : ['logcat', '-v', 'time'];
+    return spawn(this.adbCommand(), args);
   }
 }
