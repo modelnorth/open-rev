@@ -3,6 +3,23 @@
 All notable changes to OpenRev are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.0-alpha.3] — 2026-10-26
+
+Deep binary reverse engineering expansion, native zero-JVM parsers, iOS 18 / Mach-O extraction, and sovereign autonomous tool routing:
+
+### Added
+- **Zero-JVM Native DEX Parser** (`packages/core/src/format/native_parsers.ts`): Standalone DEX header, string pool, and class definitions parsed directly without JVM dependencies.
+- **Standalone ELF Symbol Extractor** (`packages/core/src/format/native_parsers.ts`): Extracts dynamic symbols, JNI export functions (`Java_*`), and DT_NEEDED libraries from Linux/Android `.so` shared objects.
+- **Mobile Framework Detector** (`packages/core/src/format/framework_detector.ts`): Detects Flutter (`libflutter.so`, `libapp.so`), React Native Hermes (`index.android.bundle`), Unity IL2CPP (`libil2cpp.so`), and Native ART runtimes.
+- **JNI Cross-Linker** (`packages/core/src/graph/jni_cross_linker.ts`): Cross-links Dalvik bytecode `native` declarations to C/C++ ELF export symbols, creating `JniBridge` nodes and `CALLS_NATIVE` / `LINKS` graph edges.
+- **Epistemic Evidence Ledger** (`packages/core/src/epistemic/evidence_ledger.ts`): Strict provenance separation of proven facts (1.0 confidence) vs inferred heuristics with mathematical scan coverage metrics.
+- **iOS 18 & 64-bit Mach-O Parser** (`packages/core/src/format/macho_parser.ts`, `packages/providers/ios/`): Decodes Mach-O ARM64/ARM64e headers, load commands (`LC_LOAD_DYLIB`), and Objective-C / Swift symbol metadata.
+- **Android Version Matrix Auditor** (`packages/core/src/format/android_version_matrix.ts`): Full security and API behavioral auditor spanning Android 4.0 (API 14) through Android 16 (API 36).
+- **Sovereign Autonomous Tool Router** (`packages/core/src/ai/sovereign/`): Offline, grammar-constrained local tool calling engine with zero cloud data transmission.
+- **OpenTelemetry Semantic Agent Tracer** (`packages/core/src/observability/otel_tracer.ts`): Distributed spans, latency breakdowns, and event tracking compatible with standard OpenTelemetry collectors.
+- **Binary Knowledge Base Wiki Engine** (`packages/core/src/wiki/binary_wiki.ts`): Markdown wiki compiler with automatic entity indexing, de-obfuscation alias tracking, and contradiction detection.
+- **Full Test Expansion**: Test suite expanded to 73 automated tests covering native analysis, framework detection, JNI cross-linking, iOS Mach-O, version auditing, and Sovereign routing.
+
 ## [0.1.0-alpha.2] — 2026-08-02
 
 Honesty & real-implementation release: the simulated/stub layers were replaced with

@@ -36,17 +36,17 @@ This repo is a **TypeScript monorepo** that runs TypeScript **directly from sour
 ```bash
 npm install        # install all workspaces (uses package-lock.json)
 npm run typecheck  # tsc --noEmit for ALL packages (core, sdk, ui, ui-sdk, mcp-server, ...)
-npm test           # 47 unit + CLI + adapter + integration + MCP tests via node:test + tsx
+npm test           # 73 unit + CLI + adapter + integration + MCP tests via node:test + tsx
 npm run test:coverage   # same + Node native coverage report
-npm run build      # typecheck only (the repo is noEmit; UI browser build is experimental)
+npm run build      # typecheck only
 npm run cli -- <cmd>   # CLI (see below)
 npm run mcp        # start the OpenRev MCP server (stdio)
 ```
 
-On the UI workspace (experimental):
+On the UI workspace:
 ```bash
-npm run typecheck --workspace=@openrev/ui   # typecheck just the UI
-npm run build --workspace=@openrev/ui       # vite build the UI (KNOWN to fail: node:* modules)
+npm run typecheck --workspace=@openrev/ui   # typecheck the UI
+npm run build --workspace=@openrev/ui       # vite build the UI production bundle
 ```
 
 ## CLI
