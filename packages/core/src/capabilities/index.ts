@@ -104,7 +104,14 @@ export class CapabilityEngine {
       outputDir: input.options?.outputDir ?? '.'
     });
     if (!res.ok) {
-      throw res.error;
+      return {
+        success: false,
+        capabilityId: 'static.decompile',
+        toolUsed: 'JADX',
+        outputSummary: `Decompilation failed: ${res.error.message}`,
+        artifactsProduced: [],
+        error: res.error.message
+      };
     }
     return {
       success: true,
@@ -141,7 +148,16 @@ export class CapabilityEngine {
       };
     }
     const devices = await adapter.listDevices();
-    if (!devices.ok) throw devices.error;
+    if (!devices.ok) {
+      return {
+        success: false,
+        capabilityId: 'device.inspect',
+        toolUsed: 'ADB',
+        outputSummary: `Failed to list devices: ${devices.error.message}`,
+        artifactsProduced: [],
+        error: devices.error.message
+      };
+    }
     return {
       success: true,
       capabilityId: 'device.inspect',

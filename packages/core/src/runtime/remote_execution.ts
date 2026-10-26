@@ -1,4 +1,4 @@
-﻿/**
+/**
  * OpenRev Remote Execution Gateway
  *
  * Routes provider capability execution across Local Process, Docker Container,
@@ -46,8 +46,15 @@ export class RemoteExecutionGateway {
         }
         console.error(`[RemoteExecutionGateway] Running Docker container ${image}`);
         const result = await runViaDocker(image, [], {});
+        if (result.code !== 0) {
+          throw new OpenRevError({
+            code: 'TOOL_EXECUTION_FAILED',
+            message: `Docker container ${image} failed with exit code ${result.code}`,
+            context: { exitCode: result.code, stderr: result.stderr.slice(0, 2000) }
+          });
+        }
         return {
-          status: result.code === 0 ? 'success' : 'failed',
+          status: 'success',
           mode: 'docker',
           image,
           exitCode: result.code,
