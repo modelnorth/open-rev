@@ -1,7 +1,7 @@
 /**
- * OpenRev Karpathy-Style Binary Knowledge Wiki Engine
+ * OpenRev Binary Knowledge Base Engine
  * 
- * "You explore. The LLM maintains."
+ * Continuous Software Intelligence Compiler.
  * 
  * Auto-compiles reverse engineering findings into structured Markdown entities,
  * tracks de-obfuscation renames, cross-links callers/callees, and detects
@@ -66,7 +66,7 @@ export class BinaryWikiEngine {
   }
 
   /**
-   * Compiles an entity into a publication-grade Karpathy Obsidian/Markdown document.
+   * Compiles an entity into a publication-grade Obsidian/Markdown document.
    */
   public compileEntityMarkdown(entityName: string): string {
     const e = this.entities.get(entityName);
@@ -97,7 +97,7 @@ export class BinaryWikiEngine {
   }
 
   /**
-   * Generates the Master Wiki Index (`index.md`).
+   * Generates the Master Knowledge Base Index (`index.md`).
    */
   public generateIndexMarkdown(): string {
     let md = `# Binary Knowledge Graph Wiki\n\n`;
