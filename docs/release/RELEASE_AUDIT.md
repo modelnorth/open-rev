@@ -25,8 +25,8 @@
 
 | Gate | Why |
 | :--- | :--- |
-| G11 jadx decompile e2e | jadx/apktool/Docker not installed on this machine |
-| G12 Ghidra e2e | `analyzeHeadless` not installed |
+| G11 jadx decompile integration | jadx/apktool/Docker not installed on this machine |
+| G12 Ghidra integration | `analyzeHeadless` not installed |
 | G13 real device runtime | no Android device attached (0 devices) |
 | G14 AI/RAG | no LLM provider keys |
 | G15 desktop UI | browser build cannot bundle `node:*` core modules (vite) |
