@@ -3,7 +3,7 @@
  * 
  * Compiles versioned OpenRev CapabilityContracts and tool definitions
  * into structured JSON schemas and regex-constrained BNF grammars
- * for the Sovereign ultra-compact tool-calling engine.
+ * for the sovereign autonomous tool-calling engine.
  */
 
 export interface SovereignToolParam {
@@ -29,7 +29,7 @@ export interface CompiledSovereignGrammar {
 
 export class SovereignGrammarCompiler {
   /**
-   * Compiles an array of OpenRev tool specifications into Sovereign tool calling definitions.
+   * Compiles an array of OpenRev tool specifications into sovereign tool calling definitions.
    */
   public static compileTools(tools: SovereignToolDefinition[]): CompiledSovereignGrammar[] {
     return tools.map((tool) => {

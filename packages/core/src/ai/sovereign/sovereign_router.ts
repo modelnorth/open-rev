@@ -1,7 +1,7 @@
 /**
- * OpenRev Sovereign Tool-Calling Execution Engine
+ * OpenRev Sovereign Autonomous Routing Engine
  * 
- * Embeds ultra-lightweight Sovereign function/tool calling architecture into OpenRev.
+ * Embeds sovereign function/tool calling architecture into OpenRev.
  * Operates offline, parses natural user intent into validated OpenRev tool actions,
  * and executes them with zero cloud dependencies or hallucinated parameters.
  */
@@ -86,7 +86,7 @@ export class SovereignRouter {
     } else {
       throw new OpenRevError({
         code: OpenRevErrorCode.CAPABILITY_NOT_FOUND,
-        message: `Sovereign engine could not route intent: "${userInstruction}".`,
+        message: `Sovereign router could not route intent: "${userInstruction}".`,
         cause: 'No compiled tool grammar matched the user request.',
         remediation: 'Specify an action matching available tools: analyze, search, query graph, detect framework, or report.'
       });
@@ -107,7 +107,7 @@ export class SovereignRouter {
       if (!(req in parameters)) {
         throw new OpenRevError({
           code: OpenRevErrorCode.CAPABILITY_EXECUTION_FAILED,
-          message: `Sovereign failed parameter validation for tool "${selectedTool}": missing required parameter "${req}".`
+          message: `Sovereign router failed parameter validation for tool "${selectedTool}": missing required parameter "${req}".`
         });
       }
     }

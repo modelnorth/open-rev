@@ -53,9 +53,9 @@ test('Full System Audit: Real APK pipeline parses, detects frameworks, extracts 
   assert.strictEqual(links[0].nativeSymbol, 'Java_com_example_two_rings_NativeBridge_verifyKey');
   assert.strictEqual(graph.getAllNodes().filter(n => n.type === 'JniBridge').length, 1);
 
-  // 5. Offline Sovereign AI Tool Routing Verification
-  const sovereign = new SovereignRouter();
-  const route = await sovereign.routeIntent(`Please analyze ${targetApk} and find all exported activities`);
+  // 5. Offline Sovereign Autonomous Tool Routing Verification
+  const router = new SovereignRouter();
+  const route = await router.routeIntent(`Please analyze ${targetApk} and find all exported activities`);
   assert.strictEqual(route.tool, 'analyze_target');
   assert.strictEqual(route.parameters.targetPath, targetApk);
 });

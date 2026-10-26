@@ -56,7 +56,7 @@ node --import tsx bin/openrev.js workflow target.apk
 
 ---
 
-## 5. Offline Tool-Calling via Sovereign Router
+## 5. Offline Autonomous Tool-Calling via Sovereign Router
 
 Run natural language queries locally without cloud leaks:
 
