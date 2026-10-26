@@ -241,7 +241,7 @@ export class AnalysisPipeline {
       fileName,
       analysis,
       artifactCount: this.options.storeArtifacts ? this.store.listAll().length : 0,
-      graph: graph.exportGraphJSON(),
+      graph: graph.toJSON(),
       searchResultCount: docs.length,
       reportMarkdown,
       workspace: { dbPath: this.workspace.dbPathDisplay(), recordId },

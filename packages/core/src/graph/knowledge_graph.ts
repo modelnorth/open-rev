@@ -2,7 +2,7 @@
  * OpenRev Artifact Knowledge Graph
  *
  * Provides a connected, searchable graph database structure correlating:
- * APK -> Manifest -> Activity -> Fragment/Compose -> Layout -> API Endpoint -> Native Library -> Permissions -> Strings -> Findings
+ * APK -> Manifest -> Activity -> Fragment/Compose -> Layout -> API Endpoint -> Native Library -> Permissions -> Strings -> Findings -> JniBridge -> IPA -> MachO -> Framework -> ObjcClass
  *
  * Includes structural validation: nodes must have unique ids, edges must
  * reference existing nodes, relationships must be from the known set, and the
@@ -11,7 +11,23 @@
 
 export interface GraphNode {
   id: string;
-  type: 'APK' | 'Manifest' | 'Activity' | 'Service' | 'Receiver' | 'Layout' | 'ApiEndpoint' | 'NativeLib' | 'Permission' | 'String' | 'Finding';
+  type:
+    | 'APK'
+    | 'Manifest'
+    | 'Activity'
+    | 'Service'
+    | 'Receiver'
+    | 'Layout'
+    | 'ApiEndpoint'
+    | 'NativeLib'
+    | 'Permission'
+    | 'String'
+    | 'Finding'
+    | 'JniBridge'
+    | 'IPA'
+    | 'MachO'
+    | 'Framework'
+    | 'ObjcClass';
   label: string;
   properties: Record<string, any>;
 }
@@ -20,7 +36,16 @@ export interface GraphEdge {
   id: string;
   source: string;
   target: string;
-  relationship: 'CONTAINS' | 'DECLARES' | 'INFLATES' | 'CALLS_API' | 'USES_PERMISSION' | 'REQUIRES_LIB' | 'HAS_FINDING';
+  relationship:
+    | 'CONTAINS'
+    | 'DECLARES'
+    | 'INFLATES'
+    | 'CALLS_API'
+    | 'USES_PERMISSION'
+    | 'REQUIRES_LIB'
+    | 'HAS_FINDING'
+    | 'CALLS_NATIVE'
+    | 'LINKS';
   properties?: Record<string, any>;
 }
 
@@ -53,6 +78,10 @@ export class ArtifactKnowledgeGraph {
     return this.nodes.get(id);
   }
 
+  public getEdge(id: string): GraphEdge | undefined {
+    return this.edges.get(id);
+  }
+
   public getAllNodes(): GraphNode[] {
     return Array.from(this.nodes.values());
   }
@@ -61,95 +90,98 @@ export class ArtifactKnowledgeGraph {
     return Array.from(this.edges.values());
   }
 
-  public getConnectedEdges(nodeId: string): GraphEdge[] {
-    return Array.from(this.edges.values()).filter(
-      (edge) => edge.source === nodeId || edge.target === nodeId
-    );
+  public getOutgoingEdges(nodeId: string): GraphEdge[] {
+    return Array.from(this.edges.values()).filter((e) => e.source === nodeId);
+  }
+
+  public getIncomingEdges(nodeId: string): GraphEdge[] {
+    return Array.from(this.edges.values()).filter((e) => e.target === nodeId);
+  }
+
+  public getNeighbors(nodeId: string): GraphNode[] {
+    const neighborIds = new Set<string>();
+    for (const e of this.edges.values()) {
+      if (e.source === nodeId) neighborIds.add(e.target);
+      if (e.target === nodeId) neighborIds.add(e.source);
+    }
+    return Array.from(neighborIds)
+      .map((id) => this.nodes.get(id))
+      .filter((n): n is GraphNode => n !== undefined);
   }
 
   public searchNodes(query: string): GraphNode[] {
     const q = query.toLowerCase();
-    return this.getAllNodes().filter(
-      (node) =>
-        node.label.toLowerCase().includes(q) ||
-        node.type.toLowerCase().includes(q) ||
-        JSON.stringify(node.properties).toLowerCase().includes(q)
-    );
+    return this.getAllNodes().filter((n) => {
+      if (n.label.toLowerCase().includes(q)) return true;
+      if (n.type.toLowerCase().includes(q)) return true;
+      for (const val of Object.values(n.properties)) {
+        if (typeof val === 'string' && val.toLowerCase().includes(q)) return true;
+      }
+      return false;
+    });
   }
 
-  /**
-   * Structural validation:
-   * - duplicate node ids are impossible (Map keyed by id)
-   * - duplicate edge ids are impossible (Map keyed by id)
-   * - every edge must reference existing source and target nodes
-   * - relationships must be from the known set
-   * - warnings for orphaned (unreachable) nodes
-   */
+  public exportGraphJSON(): string {
+    return JSON.stringify(this.toJSON(), null, 2);
+  }
+
   public validate(): GraphValidationResult {
     const issues: GraphValidationIssue[] = [];
-    const knownRelationships = new Set([
+    const validRelationships = new Set([
       'CONTAINS',
       'DECLARES',
       'INFLATES',
       'CALLS_API',
       'USES_PERMISSION',
       'REQUIRES_LIB',
-      'HAS_FINDING'
+      'HAS_FINDING',
+      'CALLS_NATIVE',
+      'LINKS'
     ]);
 
-    const nodeIds = new Set(this.nodes.keys());
-
     for (const edge of this.edges.values()) {
-      if (!nodeIds.has(edge.source)) {
+      if (!this.nodes.has(edge.source)) {
         issues.push({
           severity: 'error',
-          code: 'DANGLING_EDGE_SOURCE',
-          message: `Edge "${edge.id}" references missing source node "${edge.source}"`
+          code: 'ORPHANED_EDGE_SOURCE',
+          message: `Edge ${edge.id} references non-existent source node: ${edge.source}`
         });
       }
-      if (!nodeIds.has(edge.target)) {
+      if (!this.nodes.has(edge.target)) {
         issues.push({
           severity: 'error',
-          code: 'DANGLING_EDGE_TARGET',
-          message: `Edge "${edge.id}" references missing target node "${edge.target}"`
+          code: 'ORPHANED_EDGE_TARGET',
+          message: `Edge ${edge.id} references non-existent target node: ${edge.target}`
         });
       }
-      if (!knownRelationships.has(edge.relationship)) {
+      if (!validRelationships.has(edge.relationship)) {
         issues.push({
           severity: 'error',
           code: 'UNKNOWN_RELATIONSHIP',
-          message: `Edge "${edge.id}" uses unknown relationship "${edge.relationship}"`
-        });
-      }
-    }
-
-    const connected = new Set<string>();
-    for (const edge of this.edges.values()) {
-      connected.add(edge.source);
-      connected.add(edge.target);
-    }
-    for (const node of this.nodes.values()) {
-      if (!connected.has(node.id)) {
-        issues.push({
-          severity: 'warning',
-          code: 'ORPHANED_NODE',
-          message: `Node "${node.id}" (${node.type}) has no connecting edges`
+          message: `Edge ${edge.id} has unknown relationship type: ${edge.relationship}`
         });
       }
     }
 
     return {
-      valid: issues.every((i) => i.severity !== 'error'),
+      valid: issues.filter((i) => i.severity === 'error').length === 0,
       issues,
       nodeCount: this.nodes.size,
       edgeCount: this.edges.size
     };
   }
 
-  public exportGraphJSON(): { nodes: GraphNode[]; edges: GraphEdge[] } {
+  public toJSON(): { nodes: GraphNode[]; edges: GraphEdge[] } {
     return {
       nodes: this.getAllNodes(),
-      edges: this.getAllEdges(),
+      edges: this.getAllEdges()
     };
+  }
+
+  public static fromJSON(data: { nodes: GraphNode[]; edges: GraphEdge[] }): ArtifactKnowledgeGraph {
+    const graph = new ArtifactKnowledgeGraph();
+    for (const n of data.nodes) graph.addNode(n);
+    for (const e of data.edges) graph.addEdge(e);
+    return graph;
   }
 }

@@ -109,7 +109,7 @@ export class IosProvider extends BaseProvider {
     };
 
     // 2. Emitted Knowledge Graph Nodes
-    const graphNodes = [
+    const graphNodes: Array<{ id: string; type: string; label: string; properties: Record<string, any> }> = [
       { id: `ipa_${bundleId}`, type: 'IPA', label: fileName, properties: { bundleId, minOs } },
       { id: `macho_${bundleId}`, type: 'MachO', label: bundleName, properties: { cpu: machoSummary?.cpuType ?? 'ARM64e' } }
     ];
