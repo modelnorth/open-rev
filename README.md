@@ -5,6 +5,9 @@
 [![Platform Support](https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Linux%20%7C%20macOS%20%7C%20Windows-green.svg)](https://github.com/modelnorth/open-rev)
 [![Tests](https://img.shields.io/badge/Tests-73%20passed-success.svg)](tests/)
 
+> [!WARNING]
+> **DISCLAIMER & LEGAL NOTICE**: Use this software strictly at your own risk. OpenRev is developed for authorized security research, vulnerability analysis, and educational purposes only. Unauthorized reverse engineering, inspection, or penetration testing of software or systems without explicit prior consent from the copyright owner or relevant authorities may violate local, state, federal, or international laws. The authors and contributors assume no liability for misuse, damages, or legal consequences resulting from the use of this tool.
+
 **OpenRev** is an enterprise-grade, offline-first software intelligence and binary reverse-engineering platform. Engineered around generic software artifacts and capability-driven orchestration, it unifies deep mobile framework extraction, native Mach-O/iOS 18 analysis, cross-architecture JNI bridging, and autonomous grammar-constrained tool routing into a unified local workspace.
 
 ---
